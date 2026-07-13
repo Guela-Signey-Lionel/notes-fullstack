@@ -1,0 +1,44 @@
+version: '3.9'
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: notes-postgres
+    environment:
+      POSTGRES_DB: notes_db
+      POSTGRES_USER: notes_user
+      POSTGRES_PASSWORD: notes_pass
+    ports:
+      - "5436:5432"
+    volumes:
+      - notes_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL","pg_isready -U notes_user -d notes_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  backend:
+    build: .
+    container_name: notes-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/notes_db
+      DB_USERNAME: notes_user
+      DB_PASSWORD: notes_pass
+      JWT_SECRET: ${JWT_SECRET:-507A723F4428472D4B6150645367566B5970337336763979244226452948404D}
+      SERVER_PORT: 8081
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:4200}
+      MAIL_HOST: ${MAIL_HOST:-smtp.gmail.com}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      SPRING_PROFILES_ACTIVE: prod
+    ports:
+      - "8081:8081"
+    restart: unless-stopped
+
+volumes:
+  notes_data:

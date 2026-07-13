@@ -1,0 +1,58 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "newProjectRoot": "projects",
+  "projects": {
+    "notes-frontend": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": { "style": "scss", "standalone": true },
+        "@schematics/angular:directive":  { "standalone": true },
+        "@schematics/angular:pipe":       { "standalone": true }
+      },
+      "root": "",
+      "sourceRoot": "src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:application",
+          "options": {
+            "outputPath": "dist/notes-frontend",
+            "index": "src/index.html",
+            "browser": "src/main.ts",
+            "polyfills": ["zone.js"],
+            "tsConfig": "tsconfig.app.json",
+            "assets": ["src/favicon.ico","src/assets"],
+            "styles": [
+              "@angular/material/prebuilt-themes/indigo-pink.css",
+              "src/styles.scss"
+            ],
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              "outputHashing": "all",
+              "fileReplacements": [
+                { "replace": "src/environments/environment.ts", "with": "src/environments/environment.prod.ts" }
+              ]
+            },
+            "development": { "optimization": false, "sourceMap": true }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "configurations": {
+            "production":  { "buildTarget": "notes-frontend:build:production" },
+            "development": { "buildTarget": "notes-frontend:build:development" }
+          },
+          "defaultConfiguration": "development",
+          "options": { "proxyConfig": "proxy.conf.json" }
+        }
+      }
+    }
+  },
+  "cli": {
+    "analytics": "4be6c677-c41f-447f-aff8-245ead150e16"
+  }
+}
