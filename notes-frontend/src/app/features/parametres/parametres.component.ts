@@ -4,7 +4,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 import { AuthService } from '../../core/services/auth.service';
+import { UtilisateurService } from '../../core/services/utilisateur.service';
+import { UserEditDialogComponent } from '../../shared/components/user-edit-dialog/user-edit-dialog.component';
 
 @Component({
   selector: 'app-parametres',
@@ -22,7 +25,9 @@ import { AuthService } from '../../core/services/auth.service';
       <div class="settings-grid">
         <!-- Photo de profil -->
         <div class="card">
-          <div class="card-header"><h2>Photo de profil</h2></div>
+          <div class="card-header">
+            <h2>Photo de profil</h2>
+          </div>
           <div class="photo-section">
             <div class="photo-preview">
               <div class="photo-frame">
@@ -41,6 +46,9 @@ import { AuthService } from '../../core/services/auth.service';
                     <mat-icon>delete</mat-icon> Supprimer
                   </button>
                 }
+                <button mat-stroked-button (click)="editProfile()">
+                  <mat-icon>edit</mat-icon> Modifier
+                </button>
                 <input #fileInput type="file" accept="image/*" hidden (change)="onPhotoSelected($event)">
               </div>
             </div>
@@ -123,7 +131,9 @@ import { AuthService } from '../../core/services/auth.service';
 })
 export class ParametresComponent {
   private auth = inject(AuthService);
+  private userSvc = inject(UtilisateurService);
   private snack = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
 
   user    = this.auth.currentUser;
   uploading = signal(false);
@@ -205,5 +215,26 @@ export class ParametresComponent {
     const updated = { ...u };
     this.auth.currentUser.set(updated);
     this.snack.open('Photo de profil supprimée', 'OK', { duration: 2000, panelClass: 'info-snack' });
+  }
+
+  editProfile(): void {
+    const u = this.user();
+    if (!u) return;
+    const dialogRef = this.dialog.open(UserEditDialogComponent, {
+      width: '520px',
+      data: { user: u }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (!result) return;
+      this.userSvc.updateProfile(result).subscribe({
+        next: updated => {
+          this.auth.currentUser.set(updated);
+          this.snack.open('Profil mis à jour avec succès', 'OK', { duration: 3000, panelClass: 'success-snack' });
+        },
+        error: err => {
+          this.snack.open(err.error?.message || 'Erreur lors de la mise à jour', 'OK', { duration: 3000, panelClass: 'error-snack' });
+        }
+      });
+    });
   }
 }

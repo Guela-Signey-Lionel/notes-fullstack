@@ -10,8 +10,11 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDialog } from '@angular/material/dialog';
 import { UtilisateurService } from '../../core/services/utilisateur.service';
-import { Utilisateur } from '../../core/models';
+import { ReferentielService } from '../../core/services/referentiel.service';
+import { Utilisateur, Filiere, Promotion } from '../../core/models';
+import { UserEditDialogComponent } from '../../shared/components/user-edit-dialog/user-edit-dialog.component';
 
 @Component({
   selector: 'app-utilisateurs',
@@ -47,6 +50,24 @@ import { Utilisateur } from '../../core/models';
             </mat-form-field>
             @if (form.get('role')?.value === 'ETUDIANT') {
               <mat-form-field appearance="outline"><mat-label>N° Étudiant</mat-label><input matInput formControlName="numeroEtudiant"></mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Filière</mat-label>
+                <mat-select formControlName="filiereId" (selectionChange)="onFiliereChange($event.value)">
+                  <mat-option value="">-- Sélectionner --</mat-option>
+                  @for (f of filieres(); track f.id) {
+                    <mat-option [value]="f.id">{{f.nom}} ({{f.code}})</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Promotion</mat-label>
+                <mat-select formControlName="promotionId">
+                  <mat-option value="">-- Sélectionner --</mat-option>
+                  @for (p of promotions(); track p.id) {
+                    <mat-option [value]="p.id">{{p.nom}} — {{p.anneeAcademique}}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
             }
             @if (form.get('role')?.value === 'ENSEIGNANT') {
               <mat-form-field appearance="outline"><mat-label>Spécialité</mat-label><input matInput formControlName="specialite"></mat-form-field>
@@ -116,6 +137,9 @@ import { Utilisateur } from '../../core/models';
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef>Actions</th>
             <td mat-cell *matCellDef="let u">
+              <button mat-icon-button color="primary" matTooltip="Modifier" (click)="editUser(u)">
+                <mat-icon>edit</mat-icon>
+              </button>
               <button mat-icon-button [color]="u.actif ? 'warn' : 'primary'"
                       [matTooltip]="u.actif ? 'Désactiver' : 'Activer'"
                       (click)="toggle(u)">
@@ -145,8 +169,10 @@ import { Utilisateur } from '../../core/models';
 })
 export class UtilisateursComponent implements OnInit {
   private svc   = inject(UtilisateurService);
+  private refSvc = inject(ReferentielService);
   private fb    = inject(FormBuilder);
   private snack = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
 
   utilisateurs = signal<Utilisateur[]>([]);
   loading      = signal(false);
@@ -154,6 +180,10 @@ export class UtilisateursComponent implements OnInit {
   showForm     = signal(false);
   activeTab    = signal<string>('ENSEIGNANT');
   cols         = ['nom','role','detail','statut','actions'];
+
+  filieres    = signal<Filiere[]>([]);
+  promotions  = signal<Promotion[]>([]);
+  selectedFiliereId = signal('');
 
   tabs = [
     { role: 'ENSEIGNANT', label: 'Enseignants', icon: '👨‍🏫' },
@@ -170,9 +200,24 @@ export class UtilisateursComponent implements OnInit {
     specialite:     [''],
     grade:          [''],
     numeroEtudiant: [''],
+    filiereId:      [''],
+    promotionId:    [''],
   });
 
-  ngOnInit(): void { this.load(); }
+  ngOnInit(): void {
+    this.load();
+    this.refSvc.getFilieres().subscribe(f => this.filieres.set(f));
+  }
+
+  onFiliereChange(filiereId: string): void {
+    this.selectedFiliereId.set(filiereId);
+    this.form.get('promotionId')?.setValue('');
+    if (filiereId) {
+      this.refSvc.getPromotions(filiereId).subscribe(p => this.promotions.set(p));
+    } else {
+      this.promotions.set([]);
+    }
+  }
 
   switchTab(role: string): void { this.activeTab.set(role); this.load(); }
 
@@ -186,11 +231,25 @@ export class UtilisateursComponent implements OnInit {
   onCreate(): void {
     if (this.form.invalid) return;
     this.saving.set(true);
-    this.svc.create(this.form.value).subscribe({
+
+    const payload = { ...this.form.value };
+    // Ne pas envoyer les champs vides pour les étudiants
+    if (payload.role === 'ETUDIANT') {
+      if (!payload.filiereId) delete payload.filiereId;
+      if (!payload.promotionId) delete payload.promotionId;
+    } else {
+      delete payload.filiereId;
+      delete payload.promotionId;
+      delete payload.numeroEtudiant;
+    }
+
+    this.svc.create(payload).subscribe({
       next: () => {
         this.snack.open('Compte créé avec succès', 'OK', { duration: 3000, panelClass: 'success-snack' });
         this.showForm.set(false);
         this.form.reset({ role: 'ENSEIGNANT' });
+        this.promotions.set([]);
+        this.selectedFiliereId.set('');
         this.load();
         this.saving.set(false);
       },
@@ -198,6 +257,25 @@ export class UtilisateursComponent implements OnInit {
         this.snack.open(e.error?.message || 'Erreur création', 'OK', { duration: 3000, panelClass: 'error-snack' });
         this.saving.set(false);
       }
+    });
+  }
+
+  editUser(u: Utilisateur): void {
+    const dialogRef = this.dialog.open(UserEditDialogComponent, {
+      width: '520px',
+      data: { user: u }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (!result) return;
+      this.svc.updateByAdmin(u.id, result).subscribe({
+        next: updated => {
+          this.snack.open('Compte mis à jour avec succès', 'OK', { duration: 3000, panelClass: 'success-snack' });
+          this.load();
+        },
+        error: err => {
+          this.snack.open(err.error?.message || 'Erreur lors de la mise à jour', 'OK', { duration: 3000, panelClass: 'error-snack' });
+        }
+      });
     });
   }
 

@@ -7,6 +7,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData } from 'chart.js';
 import { Chart, registerables } from 'chart.js';
@@ -17,6 +18,7 @@ import { MoyenneService } from '../../core/services/moyenne.service';
 import { UtilisateurService } from '../../core/services/utilisateur.service';
 import { NoteService } from '../../core/services/note.service';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
+import { UserEditDialogComponent } from '../../shared/components/user-edit-dialog/user-edit-dialog.component';
 import { Promotion, Semestre, ClassementResponse, Note, MoyenneResponse, MoyenneAnnuelle, ClassementAnnuelResponse } from '../../core/models';
 import { ExportService } from '../../core/services/export.service';
 
@@ -70,6 +72,9 @@ Chart.register(...registerables);
               <mat-icon>delete</mat-icon>
             </button>
           }
+          <button class="edit-profil-btn" mat-icon-button (click)="editProfile()" matTooltip="Modifier mon profil">
+            <mat-icon>edit</mat-icon>
+          </button>
         </div>
       </div>
 
@@ -501,6 +506,9 @@ Chart.register(...registerables);
     .remove-photo-btn { position:absolute; top:-4px; right:-4px; width:28px; height:28px; background:rgba(220,38,38,.9); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; border:2px solid white; box-shadow:0 2px 6px rgba(0,0,0,.3); transition:all .2s;
       mat-icon { font-size:14px; width:14px; height:14px; }
       &:hover { background:#DC2626; transform:scale(1.1); } }
+    .edit-profil-btn { position:absolute; bottom:-2px; left:-2px; width:32px; height:32px; background:rgba(16,185,129,.9); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; border:2px solid white; box-shadow:0 2px 6px rgba(0,0,0,.3); transition:all .2s;
+      mat-icon { font-size:14px; width:14px; height:14px; }
+      &:hover { background:#059669; transform:scale(1.1); } }
     .upload-progress { display:flex; align-items:center; gap:6px; position:absolute; bottom:-20px; left:50%; transform:translateX(-50%); width:80px; mat-progress-bar { height:4px; border-radius:2px; } span { font-size:10px; font-weight:600; color:rgba(255,255,255,.8); white-space:nowrap; } }
     .profil-info { flex:1;
       h2 { margin:0 0 4px; font-size:22px; font-weight:700; }
@@ -578,6 +586,8 @@ export class DashboardComponent implements OnInit {
     return u?.photoUrl || null;
   });
 
+  private snack = inject(MatSnackBar);
+
   removePhoto(): void {
     const u = this.user();
     if (!u) return;
@@ -595,6 +605,27 @@ export class DashboardComponent implements OnInit {
           this.auth.currentUser.set(updated);
         });
       }
+    });
+  }
+
+  editProfile(): void {
+    const u = this.user();
+    if (!u) return;
+    const dialogRef = this.dialog.open(UserEditDialogComponent, {
+      width: '520px',
+      data: { user: u }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (!result) return;
+      this.userSvc.updateProfile(result).subscribe({
+        next: updated => {
+          this.auth.currentUser.set(updated);
+          this.snack.open('Profil mis à jour avec succès', 'OK', { duration: 3000, panelClass: 'success-snack' });
+        },
+        error: err => {
+          this.snack.open(err.error?.message || 'Erreur lors de la mise à jour', 'OK', { duration: 3000, panelClass: 'error-snack' });
+        }
+      });
     });
   }
 

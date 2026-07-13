@@ -1,5 +1,6 @@
 package com.notes.controller;
 import com.notes.dto.request.CreateUtilisateurRequest;
+import com.notes.dto.request.UpdateUtilisateurRequest;
 import com.notes.dto.response.*;
 import com.notes.entity.RoleUtilisateur;
 import com.notes.service.UtilisateurService;
@@ -54,6 +55,24 @@ public class UtilisateurController {
     @Operation(summary="Activer / désactiver un compte", description="Active ou désactive le compte d'un utilisateur. Un compte désactivé ne peut plus se connecter au système. Réservé aux administrateurs.")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> toggle(@PathVariable UUID id) { service.toggleActif(id); return ResponseEntity.noContent().build(); }
+
+    @PutMapping("/profil")
+    @Operation(summary="Modifier mon profil", description="Permet à l'utilisateur connecté de modifier ses propres informations (nom, prénom, email, mot de passe, téléphone, adresse). Seuls les champs fournis sont modifiés.")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UtilisateurResponse> updateProfil(
+        @Valid @RequestBody UpdateUtilisateurRequest req,
+        @AuthenticationPrincipal com.notes.entity.Utilisateur user) {
+        return ResponseEntity.ok(service.updateProfile(user.getId(), req));
+    }
+
+    @PutMapping("/{id}")
+    @Operation(summary="Modifier un utilisateur (admin)", description="Permet à un administrateur de modifier les informations de n'importe quel utilisateur. Réservé aux administrateurs.")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UtilisateurResponse> updateByAdmin(
+        @PathVariable UUID id,
+        @Valid @RequestBody UpdateUtilisateurRequest req) {
+        return ResponseEntity.ok(service.updateProfileByAdmin(id, req));
+    }
 
     @PostMapping("/photo")
     @Operation(summary="Uploader la photo de profil", description="Enregistre la photo de l'utilisateur connecté (base64) dans la base de données.")

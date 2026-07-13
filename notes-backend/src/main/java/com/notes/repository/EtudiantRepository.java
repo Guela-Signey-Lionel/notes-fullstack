@@ -12,6 +12,8 @@ public interface EtudiantRepository extends JpaRepository<Etudiant, UUID> {
     boolean existsByNumeroEtudiant(String numero);
     @Query("SELECT e FROM Etudiant e JOIN e.promotions p WHERE p.id = :promotionId")
     List<Etudiant> findByPromotionId(@Param("promotionId") UUID promotionId);
+    Optional<Etudiant> findByUtilisateur(com.notes.entity.Utilisateur utilisateur);
+
     @Query("SELECT e FROM Etudiant e WHERE LOWER(e.utilisateur.nom) LIKE LOWER(CONCAT('%',:q,'%')) OR LOWER(e.utilisateur.prenom) LIKE LOWER(CONCAT('%',:q,'%')) OR e.numeroEtudiant LIKE CONCAT('%',:q,'%')")
     Page<Etudiant> rechercher(@Param("q") String q, Pageable pageable);
 }

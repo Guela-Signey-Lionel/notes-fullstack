@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.notes.dto.request.UpdateUtilisateurRequest;
+
 @Service @RequiredArgsConstructor @Transactional
 public class UtilisateurService {
 
@@ -23,6 +25,7 @@ public class UtilisateurService {
     private final EnseignantRepository enseignantRepo;
     private final PasswordEncoder passwordEncoder;
     private final AuthService authService;
+    private final PromotionRepository promotionRepo;
 
     @Transactional(readOnly = true)
     public List<UtilisateurResponse> findByRole(RoleUtilisateur role) {
@@ -53,8 +56,18 @@ public class UtilisateurService {
                 throw NotesException.badRequest("Numéro étudiant obligatoire");
             if (etudiantRepo.existsByNumeroEtudiant(req.getNumeroEtudiant()))
                 throw NotesException.conflict("Numéro étudiant déjà utilisé");
-            etudiantRepo.save(Etudiant.builder().utilisateur(u)
+
+            // Créer l'étudiant
+            Etudiant etu = etudiantRepo.save(Etudiant.builder().utilisateur(u)
                 .numeroEtudiant(req.getNumeroEtudiant()).build());
+
+            // Si une promotion est spécifiée, inscrire l'étudiant dans cette promotion
+            if (req.getPromotionId() != null) {
+                Promotion promo = promotionRepo.findById(req.getPromotionId())
+                    .orElseThrow(() -> NotesException.notFound("Promotion"));
+                etu.getPromotions().add(promo);
+                etudiantRepo.save(etu);
+            }
         } else if (req.getRole() == RoleUtilisateur.ENSEIGNANT) {
             enseignantRepo.save(Enseignant.builder().utilisateur(u)
                 .specialite(req.getSpecialite()).grade(req.getGrade()).build());
@@ -74,6 +87,52 @@ public class UtilisateurService {
             .orElseThrow(() -> NotesException.notFound("Utilisateur"));
         u.setPhoto(photoBase64);
         return authService.mapUser(utilisateurRepo.save(u));
+    }
+
+    public UtilisateurResponse updateProfile(UUID userId, UpdateUtilisateurRequest req) {
+        Utilisateur u = utilisateurRepo.findById(userId)
+            .orElseThrow(() -> NotesException.notFound("Utilisateur"));
+
+        if (req.getNom() != null) u.setNom(req.getNom());
+        if (req.getPrenom() != null) u.setPrenom(req.getPrenom());
+        if (req.getEmail() != null) {
+            if (!u.getEmail().equals(req.getEmail()) && utilisateurRepo.existsByEmail(req.getEmail()))
+                throw NotesException.conflict("Email déjà utilisé");
+            u.setEmail(req.getEmail());
+        }
+        if (req.getMotDePasse() != null) {
+            u.setMotDePasse(passwordEncoder.encode(req.getMotDePasse()));
+        }
+        u = utilisateurRepo.save(u);
+
+        // Update Etudiant specific fields
+        if (u.getRole() == RoleUtilisateur.ETUDIANT) {
+            Etudiant etu = etudiantRepo.findByUtilisateur(u).orElse(null);
+            if (etu != null) {
+                if (req.getNumeroEtudiant() != null) {
+                    etu.setNumeroEtudiant(req.getNumeroEtudiant());
+                }
+                if (req.getTelephone() != null) etu.setTelephone(req.getTelephone());
+                if (req.getAdresse() != null) etu.setAdresse(req.getAdresse());
+                etudiantRepo.save(etu);
+            }
+        }
+
+        // Update Enseignant specific fields
+        if (u.getRole() == RoleUtilisateur.ENSEIGNANT) {
+            Enseignant ens = enseignantRepo.findByUtilisateur(u).orElse(null);
+            if (ens != null) {
+                if (req.getSpecialite() != null) ens.setSpecialite(req.getSpecialite());
+                if (req.getGrade() != null) ens.setGrade(req.getGrade());
+                enseignantRepo.save(ens);
+            }
+        }
+
+        return authService.mapUser(u);
+    }
+
+    public UtilisateurResponse updateProfileByAdmin(UUID userId, UpdateUtilisateurRequest req) {
+        return updateProfile(userId, req);
     }
 
     public void importerEtudiantsCSV(org.springframework.web.multipart.MultipartFile file, UUID promotionId) {

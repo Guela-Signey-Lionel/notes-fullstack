@@ -16,6 +16,8 @@ export class UtilisateurService {
   getAll(role?: string): Observable<Utilisateur[]> { return this.h.get<Utilisateur[]>(this.A, {params: role ? {role} : {}}); }
   create(d: any): Observable<Utilisateur> { return this.h.post<Utilisateur>(this.A,d); }
   toggleActif(id: string): Observable<void> { return this.h.patch<void>(`${this.A}/${id}/toggle-actif`,{}); }
+  updateProfile(d: any): Observable<Utilisateur> { return this.h.put<Utilisateur>(`${this.A}/profil`, d); }
+  updateByAdmin(id: string, d: any): Observable<Utilisateur> { return this.h.put<Utilisateur>(`${this.A}/${id}`, d); }
   uploadPhoto(photo: string): Observable<Utilisateur> { return this.h.post<Utilisateur>(`${this.A}/photo`, { photo }); }
   importCSV(file: File, promotionId: string): Observable<void> {
     const form = new FormData(); form.append('file',file); form.append('promotionId',promotionId);
