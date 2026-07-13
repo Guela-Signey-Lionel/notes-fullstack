@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
@@ -118,14 +118,43 @@ import { UserEditDialogComponent } from '../../shared/components/user-edit-dialo
             </td>
           </ng-container>
 
-          <ng-container matColumnDef="detail">
-            <th mat-header-cell *matHeaderCellDef>Détail</th>
-            <td mat-cell *matCellDef="let u">
-              @if (u.numeroEtudiant) { <code style="font-size:11px;background:var(--primary-pale);padding:2px 6px;border-radius:4px">{{u.numeroEtudiant}}</code> }
-              @if (u.specialite) { <span style="font-size:12px;color:var(--muted)">{{u.specialite}}</span> }
-              @if (u.grade) { <span style="font-size:11px;color:var(--muted);margin-left:6px">· {{u.grade}}</span> }
-            </td>
-          </ng-container>
+          <!-- Colonnes spécifiques selon l'onglet actif -->
+          @if (activeTab() === 'ETUDIANT') {
+            <ng-container matColumnDef="numeroEtudiant">
+              <th mat-header-cell *matHeaderCellDef>N° Étudiant</th>
+              <td mat-cell *matCellDef="let u">
+                <code style="font-size:11px;background:var(--primary-pale);padding:2px 6px;border-radius:4px">{{u.numeroEtudiant}}</code>
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="filiere">
+              <th mat-header-cell *matHeaderCellDef>Filière</th>
+              <td mat-cell *matCellDef="let u">
+                @if (u.filiereNom) {
+                  <span style="font-size:12px;font-weight:500;color:var(--text)">{{u.filiereNom}}</span>
+                } @else {
+                  <span style="font-size:11px;color:var(--muted);font-style:italic">Non assignée</span>
+                }
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="promotion">
+              <th mat-header-cell *matHeaderCellDef>Promotion</th>
+              <td mat-cell *matCellDef="let u">
+                @if (u.promotionNom && u.promotionAnnee) {
+                  <span style="font-size:12px;color:var(--text)">{{u.promotionNom}} — {{u.promotionAnnee}}</span>
+                } @else {
+                  <span style="font-size:11px;color:var(--muted);font-style:italic">Non inscrit</span>
+                }
+              </td>
+            </ng-container>
+          } @else {
+            <ng-container matColumnDef="detail">
+              <th mat-header-cell *matHeaderCellDef>Détail</th>
+              <td mat-cell *matCellDef="let u">
+                @if (u.specialite) { <span style="font-size:12px;color:var(--muted)">{{u.specialite}}</span> }
+                @if (u.grade) { <span style="font-size:11px;color:var(--muted);margin-left:6px">· {{u.grade}}</span> }
+              </td>
+            </ng-container>
+          }
 
           <ng-container matColumnDef="statut">
             <th mat-header-cell *matHeaderCellDef>Statut</th>
@@ -148,10 +177,10 @@ import { UserEditDialogComponent } from '../../shared/components/user-edit-dialo
             </td>
           </ng-container>
 
-          <tr mat-header-row *matHeaderRowDef="cols"></tr>
-          <tr mat-row *matRowDef="let row; columns: cols;"></tr>
+          <tr mat-header-row *matHeaderRowDef="cols()"></tr>
+          <tr mat-row *matRowDef="let row; columns: cols();"></tr>
           <tr *matNoDataRow>
-            <td [attr.colspan]="cols.length">
+            <td [attr.colspan]="cols().length">
               <div class="empty-state"><span class="empty-icon">👤</span><h3>Aucun utilisateur</h3></div>
             </td>
           </tr>
@@ -179,7 +208,10 @@ export class UtilisateursComponent implements OnInit {
   saving       = signal(false);
   showForm     = signal(false);
   activeTab    = signal<string>('ENSEIGNANT');
-  cols         = ['nom','role','detail','statut','actions'];
+  cols         = computed(() => {
+    if (this.activeTab() === 'ETUDIANT') return ['nom','role','numeroEtudiant','filiere','promotion','statut','actions'];
+    return ['nom','role','detail','statut','actions'];
+  });
 
   filieres    = signal<Filiere[]>([]);
   promotions  = signal<Promotion[]>([]);

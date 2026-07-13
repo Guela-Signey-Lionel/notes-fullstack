@@ -71,7 +71,18 @@ public class AuthService {
             enseignantRepo.findById(u.getId()).ifPresent(e -> { b.specialite(e.getSpecialite()); b.grade(e.getGrade()); });
         }
         if (u.getRole() == RoleUtilisateur.ETUDIANT) {
-            etudiantRepo.findById(u.getId()).ifPresent(e -> b.numeroEtudiant(e.getNumeroEtudiant()));
+            etudiantRepo.findById(u.getId()).ifPresent(e -> {
+                b.numeroEtudiant(e.getNumeroEtudiant());
+                // Récupérer la première promotion active de l'étudiant
+                e.getPromotions().stream()
+                    .filter(Promotion::isActif)
+                    .findFirst()
+                    .ifPresent(p -> {
+                        b.filiereNom(p.getFiliere().getNom());
+                        b.promotionNom(p.getNom());
+                        b.promotionAnnee(p.getAnneeAcademique());
+                    });
+            });
         }
         return b.build();
     }

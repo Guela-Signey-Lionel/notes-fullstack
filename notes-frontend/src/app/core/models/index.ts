@@ -17,6 +17,9 @@ export interface Utilisateur {
   specialite?: string; grade?: string; numeroEtudiant?: string;
   telephone?: string; adresse?: string;
   photoUrl?: string;
+  filiereNom?: string;
+  promotionNom?: string;
+  promotionAnnee?: string;
 }
 
 // ── Classement annuel ───────────────────────────────────────────────────────

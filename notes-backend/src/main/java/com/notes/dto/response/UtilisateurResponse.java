@@ -14,4 +14,7 @@ public class UtilisateurResponse {
     private String grade;
     private String numeroEtudiant;
     private String photoUrl;
+    private String filiereNom;
+    private String promotionNom;
+    private String promotionAnnee;
 }
