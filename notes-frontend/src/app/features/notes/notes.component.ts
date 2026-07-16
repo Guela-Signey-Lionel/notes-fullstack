@@ -357,7 +357,7 @@ import { Promotion, Semestre, Matiere, Note, Utilisateur, CsvImportResponse, Sta
   styles: [`
     .actions-tabs { display:flex; gap:0; margin-bottom:20px; background:white; border-radius:var(--radius); border:1px solid var(--border); overflow:hidden; box-shadow:var(--shadow);
       button { flex:1; padding:12px; border:none; background:none; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; font-size:13px; font-weight:500; color:var(--muted); border-right:1px solid var(--border); transition:.15s;
-        &:last-child { border-right:none; } &:hover { background:var(--bg); } &.active { background:var(--primary); color:white; } mat-icon { font-size:18px; width:18px; height:18px; } } }
+        &:last-child { border-right:none; } &:hover { background:var(--bg); } &.active { background:var(--primary); color:white; } i { font-size:18px; width:18px; text-align:center; } } }
     .note-input { width:70px; padding:6px 8px; border:1px solid var(--border); border-radius:6px; font-size:14px; font-weight:600; text-align:center; &:focus { outline:none; border-color:var(--primary-light); } &:disabled { background:var(--bg); color:var(--muted); } }
     .note-mention { margin-left:6px; font-size:10px; font-weight:600; }
     .comment-input { width:120px; padding:4px 8px; border:1px solid var(--border); border-radius:6px; font-size:12px; &:focus { outline:none; } }
@@ -366,7 +366,7 @@ import { Promotion, Semestre, Matiere, Note, Utilisateur, CsvImportResponse, Sta
     .csv-zone { display:flex; align-items:center; gap:32px; padding:24px; background:var(--bg); border-radius:8px; margin-bottom:16px; }
     .csv-info { display:flex; flex-direction:column; align-items:center; gap:6px; text-align:center; h3 { font-size:14px; } code { background:#E2E8F0; padding:4px 12px; border-radius:4px; font-size:12px; } }
     .csv-actions { display:flex; flex-direction:column; gap:12px; }
-    .csv-file-info { display:flex; align-items:center; gap:10px; font-size:13px; mat-icon { color:var(--success); } }
+    .csv-file-info { display:flex; align-items:center; gap:10px; font-size:13px; i { color:var(--success); } }
     .csv-result { background:#F0FDF4; border:1px solid #BBF7D0; border-radius:8px; padding:16px; &.has-errors { background:#FFF7ED; border-color:#FDE68A; } }
     .csv-result-header { display:flex; gap:20px; font-weight:600; font-size:14px; margin-bottom:8px; }
     .error-list { max-height:150px; overflow-y:auto; }

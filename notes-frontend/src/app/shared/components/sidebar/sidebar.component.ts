@@ -78,12 +78,12 @@ interface NavItem {
     .brand { display:flex; align-items:center; gap:12px;
       .logo { font-size:28px; } .name { display:block; font-size:16px; font-weight:700; } .sub { display:block; font-size:11px; opacity:.55; } }
     .sidebar-close-btn { display:none; background:none; border:none; cursor:pointer; color:rgba(255,255,255,.6); width:32px; height:32px; border-radius:8px; align-items:center; justify-content:center; transition:all .15s;
-      mat-icon { font-size:20px; width:20px; height:20px; }
+      i { font-size:20px; }
       &:hover { background:rgba(255,255,255,.12); color:white; } }
     .nav { flex:1; padding:14px 10px; overflow-y:auto; }
     .section-label { display:block; font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:rgba(255,255,255,.35); padding:6px 8px 4px; }
     .nav-item { display:flex; align-items:center; gap:11px; padding:9px 10px; border-radius:8px; color:rgba(255,255,255,.65); text-decoration:none; font-size:14px; font-weight:500; transition:all .15s; margin-bottom:2px; cursor:pointer;
-      mat-icon { font-size:19px; width:19px; height:19px; }
+      i { font-size:19px; width:19px; text-align:center; }
       &:hover { background:rgba(255,255,255,.1); color:white; }
       &.active { background:rgba(255,255,255,.16); color:white; box-shadow:inset 3px 0 0 #0EA5E9; } }
     .footer { padding:10px 12px; border-top:1px solid rgba(255,255,255,.1); display:flex; flex-direction:column; gap:8px; }
@@ -95,7 +95,7 @@ interface NavItem {
     .sidebar-role { font-size:9px !important; padding:1px 6px !important; margin-top:2px; align-self:flex-start; }
     .footer-actions { display:flex; gap:4px; justify-content:flex-end; border-top:1px solid rgba(255,255,255,.08); padding-top:8px; }
     .footer-btn { background:none; border:none; cursor:pointer; color:rgba(255,255,255,.5); width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; transition:all .15s; text-decoration:none;
-      mat-icon { font-size:18px; width:18px; height:18px; }
+      i { font-size:18px; }
       &:hover { background:rgba(255,255,255,.12); color:white; } }
   `]
 })

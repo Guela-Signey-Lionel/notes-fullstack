@@ -16,6 +16,7 @@ import { ReferentielService } from '../../core/services/referentiel.service';
 import { UtilisateurService } from '../../core/services/utilisateur.service';
 import { Filiere, Promotion, Semestre, UE, Matiere, Utilisateur } from '../../core/models';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
+import { MatiereEditDialogComponent, MatiereDialogData } from '../../shared/components/matiere-edit-dialog/matiere-edit-dialog.component';
 
 @Component({
   selector: 'app-referentiel',
@@ -218,22 +219,6 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/c
                   </div>
                 </div>
                 @if (openUE() === ue.id) {
-                  @if (matiereFormUE() === ue.id) {
-                    <form [formGroup]="matiereForm" (ngSubmit)="createMatiere(ue.id)" class="mini-form" style="margin:4px 0 8px 0">
-                      <mat-form-field appearance="outline" style="width:100%"><mat-label>Code</mat-label><input matInput formControlName="code"></mat-form-field>
-                      <mat-form-field appearance="outline" style="width:100%"><mat-label>Intitulé</mat-label><input matInput formControlName="intitule"></mat-form-field>
-                      <mat-form-field appearance="outline" style="width:100%"><mat-label>Coefficient</mat-label><input matInput type="number" step="0.5" formControlName="coefficient"></mat-form-field>
-                      <mat-form-field appearance="outline" style="width:100%"><mat-label>Enseignant</mat-label>
-                        <mat-select formControlName="enseignantId">
-                          @for (e of enseignants(); track e.id) { <mat-option [value]="e.id">{{e.prenom}} {{e.nom}}</mat-option> }
-                        </mat-select>
-                      </mat-form-field>
-                      <div style="display:flex;gap:6px;justify-content:flex-end">
-                        <button mat-button type="button" (click)="matiereFormUE.set(null)">Annuler</button>
-                        <button mat-raised-button color="primary" type="submit" [disabled]="matiereForm.invalid">{{matiereEditId() ? 'Modifier' : 'Créer'}}</button>
-                      </div>
-                    </form>
-                  }
                   @for (m of ue.matieres; track m.id) {
                     <div class="matiere-item">
                       <div style="flex:1">
@@ -299,7 +284,6 @@ export class ReferentielComponent implements OnInit {
   selectedPromo   = signal<Promotion | null>(null);
   selectedSem     = signal<Semestre | null>(null);
   openUE          = signal<string | null>(null);
-  matiereFormUE   = signal<string | null>(null);
 
   showFiliereForm = signal(false);
   showPromoForm   = signal(false);
@@ -311,13 +295,10 @@ export class ReferentielComponent implements OnInit {
   promoEditId    = signal<string | null>(null);
   semEditId      = signal<string | null>(null);
   ueEditId       = signal<string | null>(null);
-  matiereEditId  = signal<string | null>(null);
-
   filiereForm = this.fb.group({ nom: ['', Validators.required], code: ['', Validators.required], niveau: ['LICENCE', Validators.required], duree: [3, Validators.required] });
   promoForm   = this.fb.group({ nom: ['', Validators.required], anneeAcademique: ['', Validators.required] });
   semForm     = this.fb.group({ numero: [1, Validators.required], anneeAcademique: ['', Validators.required] });
   ueForm      = this.fb.group({ code: ['', Validators.required], intitule: ['', Validators.required], creditsEcts: [3, Validators.required] });
-  matiereForm = this.fb.group({ code: ['', Validators.required], intitule: ['', Validators.required], coefficient: [1, [Validators.required, Validators.min(0.1)]], enseignantId: [''] });
 
   ngOnInit(): void {
     this.refSvc.getFilieres().subscribe(f => this.filieres.set(f));
@@ -328,7 +309,22 @@ export class ReferentielComponent implements OnInit {
   selectPromo(p: Promotion): void { this.selectedPromo.set(p); this.selectedSem.set(null); this.semestres.set([]); this.ues.set([]); this.refSvc.getSemestres(p.id).subscribe(s => this.semestres.set(s)); }
   selectSem(s: Semestre): void { this.selectedSem.set(s); this.ues.set([]); this.refSvc.getUEs(s.id).subscribe(u => this.ues.set(u)); }
   toggleUE(id: string): void { this.openUE.update(v => v === id ? null : id); }
-  openMatiereForm(ueId: string): void { this.matiereFormUE.set(ueId); this.openUE.set(ueId); this.matiereEditId.set(null); this.matiereForm.reset({ coefficient: 1 }); }
+
+  openMatiereForm(ueId: string): void {
+    const ue = this.ues().find(u => u.id === ueId);
+    if (!ue) return;
+    const dialogRef = this.dialog.open(MatiereEditDialogComponent, {
+      width: '540px',
+      data: { ueId, ueIntitule: ue.intitule, enseignants: this.enseignants() } as MatiereDialogData
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (!result) return;
+      this.refSvc.createMatiere({ ...result, ueId }).subscribe({ next: m => {
+        this.ues.update(ues => ues.map(u => u.id === ueId ? { ...u, matieres: [...u.matieres, m] } : u));
+        this.snack.open('Matière créée', 'OK', { duration: 2000, panelClass: 'success-snack' });
+      }, error: e => this.snack.open(e.error?.message || 'Erreur', 'OK', { duration: 3000, panelClass: 'error-snack' }) });
+    });
+  }
 
   toggleSemestre(s: Semestre): void {
     const obs = s.statut === 'OUVERT' ? this.refSvc.cloturerSemestre(s.id) : this.refSvc.rouvrirSemestre(s.id);
@@ -497,31 +493,21 @@ export class ReferentielComponent implements OnInit {
     this.ueEditId.set(null);
   }
 
-  // ── CRUD Matières ────────────────────────────────────────────────────
-  createMatiere(ueId: string): void {
-    if (this.matiereForm.invalid) return;
-    const data = { ...this.matiereForm.value, ueId };
-    const editId = this.matiereEditId();
-    if (editId) {
-      this.refSvc.updateMatiere(editId, data).subscribe({ next: m => {
-        this.ues.update(ues => ues.map(ue => ue.id === ueId ? { ...ue, matieres: ue.matieres.map(x => x.id === editId ? m : x) } : ue));
-        this.resetMatiereForm();
+  // ── CRUD Matières (via modale) ──────────────────────────────────────
+  editMatiere(ueId: string, m: Matiere): void {
+    const ue = this.ues().find(u => u.id === ueId);
+    if (!ue) return;
+    const dialogRef = this.dialog.open(MatiereEditDialogComponent, {
+      width: '540px',
+      data: { matiere: m, ueId, ueIntitule: ue.intitule, enseignants: this.enseignants() } as MatiereDialogData
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (!result) return;
+      this.refSvc.updateMatiere(m.id, result).subscribe({ next: updated => {
+        this.ues.update(ues => ues.map(ue => ue.id === ueId ? { ...ue, matieres: ue.matieres.map(x => x.id === m.id ? updated : x) } : ue));
         this.snack.open('Matière modifiée', 'OK', { duration: 2000, panelClass: 'success-snack' });
       }, error: e => this.snack.open(e.error?.message || 'Erreur', 'OK', { duration: 3000, panelClass: 'error-snack' }) });
-    } else {
-      this.refSvc.createMatiere(data).subscribe({ next: m => {
-        this.ues.update(ues => ues.map(ue => ue.id === ueId ? { ...ue, matieres: [...ue.matieres, m] } : ue));
-        this.resetMatiereForm();
-        this.snack.open('Matière créée', 'OK', { duration: 2000, panelClass: 'success-snack' });
-      }, error: e => this.snack.open(e.error?.message || 'Erreur', 'OK', { duration: 3000, panelClass: 'error-snack' }) });
-    }
-  }
-
-  editMatiere(ueId: string, m: Matiere): void {
-    this.matiereEditId.set(m.id);
-    this.matiereForm.patchValue({ code: m.code, intitule: m.intitule, coefficient: m.coefficient, enseignantId: m.enseignantId ?? '' });
-    this.matiereFormUE.set(ueId);
-    this.openUE.set(ueId);
+    });
   }
 
   deleteMatiere(m: Matiere): void {
@@ -530,11 +516,5 @@ export class ReferentielComponent implements OnInit {
       this.ues.update(ues => ues.map(ue => ({ ...ue, matieres: ue.matieres.filter(x => x.id !== m.id) })));
       this.snack.open('Matière supprimée', 'OK', { duration: 2000 });
     }}); });
-  }
-
-  private resetMatiereForm(): void {
-    this.matiereForm.reset({ coefficient: 1 });
-    this.matiereFormUE.set(null);
-    this.matiereEditId.set(null);
   }
 }

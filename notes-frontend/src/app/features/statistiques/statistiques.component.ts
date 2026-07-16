@@ -153,27 +153,95 @@ export class StatistiquesComponent implements OnInit {
   data = signal<any>(null);
   colors = ['#3B82F6','#8B5CF6','#10B981','#F59E0B','#EF4444','#EC4899','#14B8A6','#F97316'];
 
-  filierePieData: ChartData<'doughnut'> = { labels: [], datasets: [{ data: [], backgroundColor: [], borderWidth: 2, borderColor: '#fff' }] };
-  promoBarData: ChartData<'bar'> = { labels: [], datasets: [{ data: [], backgroundColor: '#8B5CF6', borderRadius: 6 }] };
-  reussiteBarData: ChartData<'bar'> = { labels: [], datasets: [{ data: [], backgroundColor: '#10B981', borderRadius: 6 }] };
-  reussiteEchecData: ChartData<'doughnut'> = { labels: [], datasets: [{ data: [], backgroundColor: ['#10B981','#EF4444'], borderWidth: 2, borderColor: '#fff' }] };
-  anneeBarData: ChartData<'bar'> = { labels: [], datasets: [{ data: [], backgroundColor: '#F59E0B', borderRadius: 6 }] };
+  filierePieData: ChartData<'doughnut'> = { labels: [], datasets: [{ data: [], backgroundColor: [], borderWidth: 0 }] };
+  promoBarData: ChartData<'bar'> = { labels: [], datasets: [{ data: [], backgroundColor: '#8B5CF6', borderRadius: 8, borderSkipped: false }] };
+  reussiteBarData: ChartData<'bar'> = { labels: [], datasets: [{ data: [], backgroundColor: '#10B981', borderRadius: 8, borderSkipped: false }] };
+  reussiteEchecData: ChartData<'doughnut'> = { labels: [], datasets: [{ data: [], backgroundColor: ['#10B981','#EF4444'], borderWidth: 0 }] };
+  anneeBarData: ChartData<'bar'> = { labels: [], datasets: [{ data: [], backgroundColor: '#F59E0B', borderRadius: 8, borderSkipped: false }] };
 
-  doughnutOpts: ChartConfiguration['options'] = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } };
+  doughnutOpts = {
+    responsive: true, maintainAspectRatio: false,
+    cutout: '60%',
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: 'rgba(15,23,42,.9)',
+        titleFont: { size: 12 },
+        bodyFont: { size: 11 },
+        padding: 10,
+        cornerRadius: 8,
+        displayColors: true
+      }
+    },
+    animation: {
+      duration: 1000,
+      easing: 'easeOutQuart'
+    }
+  };
   barChartOpts: ChartConfiguration['options'] = {
     responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `Étudiants: ${ctx.raw}` } } },
-    scales: { y: { beginAtZero: true, ticks: { font: { size: 10 }, stepSize: 1 } }, x: { ticks: { font: { size: 9 }, maxRotation: 45 } } }
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: 'rgba(15,23,42,.9)',
+        titleFont: { size: 12 },
+        bodyFont: { size: 11 },
+        padding: 10,
+        cornerRadius: 8,
+        callbacks: { label: ctx => `Étudiants: ${ctx.raw}` }
+      }
+    },
+    scales: {
+      y: { beginAtZero: true, ticks: { font: { size: 10 }, stepSize: 1 }, grid: { color: 'rgba(0,0,0,.06)' } },
+      x: { ticks: { font: { size: 9 }, maxRotation: 45 }, grid: { display: false } }
+    },
+    animation: {
+      duration: 800,
+      easing: 'easeOutQuart'
+    }
   };
   reussiteBarOpts: ChartConfiguration['options'] = {
     responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => `Taux: ${ctx.raw}%` } } },
-    scales: { y: { beginAtZero: true, max: 100, ticks: { font: { size: 10 }, callback: v => v + '%' } }, x: { ticks: { font: { size: 9 }, maxRotation: 45 } } }
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: 'rgba(15,23,42,.9)',
+        titleFont: { size: 12 },
+        bodyFont: { size: 11 },
+        padding: 10,
+        cornerRadius: 8,
+        callbacks: { label: ctx => `Taux: ${ctx.raw}%` }
+      }
+    },
+    scales: {
+      y: { beginAtZero: true, max: 100, ticks: { font: { size: 10 }, callback: v => v + '%' }, grid: { color: 'rgba(0,0,0,.06)' } },
+      x: { ticks: { font: { size: 9 }, maxRotation: 45 }, grid: { display: false } }
+    },
+    animation: {
+      duration: 800,
+      easing: 'easeOutBounce'
+    }
   };
   anneeBarOpts: ChartConfiguration['options'] = {
     responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
-    scales: { y: { beginAtZero: true, ticks: { font: { size: 10 }, stepSize: 1 } }, x: { ticks: { font: { size: 10 } } } }
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: 'rgba(15,23,42,.9)',
+        titleFont: { size: 12 },
+        bodyFont: { size: 11 },
+        padding: 10,
+        cornerRadius: 8
+      }
+    },
+    scales: {
+      y: { beginAtZero: true, ticks: { font: { size: 10 }, stepSize: 1 }, grid: { color: 'rgba(0,0,0,.06)' } },
+      x: { ticks: { font: { size: 10 } }, grid: { display: false } }
+    },
+    animation: {
+      duration: 800,
+      easing: 'easeOutQuart'
+    }
   };
 
   filiereLegend = computed(() => {

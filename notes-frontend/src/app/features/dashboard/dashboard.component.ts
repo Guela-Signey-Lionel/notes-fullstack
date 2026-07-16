@@ -501,13 +501,13 @@ Chart.register(...registerables);
     .profil-photo { width:100%; height:100%; object-fit:cover; }
     .profil-initials { font-size:28px; font-weight:700; color:white; }
     .upload-btn { position:absolute; bottom:-2px; right:-2px; width:32px; height:32px; border-radius:50%; background:#0EA5E9; border:2px solid white; color:white; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .2s; box-shadow:0 2px 8px rgba(0,0,0,.2);
-      mat-icon { font-size:16px; width:16px; height:16px; }
+      i { font-size:16px; }
       &:hover { background:#0284C7; transform:scale(1.1); } }
     .remove-photo-btn { position:absolute; top:-4px; right:-4px; width:28px; height:28px; background:rgba(220,38,38,.9); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; border:2px solid white; box-shadow:0 2px 6px rgba(0,0,0,.3); transition:all .2s;
-      mat-icon { font-size:14px; width:14px; height:14px; }
+      i { font-size:14px; }
       &:hover { background:#DC2626; transform:scale(1.1); } }
     .edit-profil-btn { position:absolute; bottom:-2px; left:-2px; width:32px; height:32px; background:rgba(16,185,129,.9); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; border:2px solid white; box-shadow:0 2px 6px rgba(0,0,0,.3); transition:all .2s;
-      mat-icon { font-size:14px; width:14px; height:14px; }
+      i { font-size:14px; }
       &:hover { background:#059669; transform:scale(1.1); } }
     .upload-progress { display:flex; align-items:center; gap:6px; position:absolute; bottom:-20px; left:50%; transform:translateX(-50%); width:80px; mat-progress-bar { height:4px; border-radius:2px; } span { font-size:10px; font-weight:600; color:rgba(255,255,255,.8); white-space:nowrap; } }
     .profil-info { flex:1;
@@ -518,7 +518,7 @@ Chart.register(...registerables);
       .badge.etudiant { background:rgba(96,165,250,.2); color:#60A5FA; }
     }
     .profil-email, .profil-detail { margin:2px 0; font-size:13px; opacity:.85; display:flex; align-items:center; gap:6px;
-      mat-icon { font-size:16px; width:16px; height:16px; } }
+      i { font-size:16px; } }
 
     .charts-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
     .select-ctrl { padding:8px 12px; border:1px solid var(--border); border-radius:8px; font-size:13px; color:var(--text); background:var(--card); outline:none; cursor:pointer; &:disabled { opacity:.5; cursor:not-allowed; } }

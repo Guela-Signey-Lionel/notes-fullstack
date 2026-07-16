@@ -114,7 +114,7 @@ interface NotificationItem {
     .header { height:var(--header-h); background:white; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 24px; box-shadow:var(--shadow); position:sticky; top:0; z-index:50; }
     .header-left { display:flex; align-items:center; gap:8px; min-width:0; }
     .hamburger-btn { display:none; background:none; border:none; cursor:pointer; color:var(--muted); width:36px; height:36px; border-radius:8px; align-items:center; justify-content:center; transition:all .15s; flex-shrink:0;
-      mat-icon { font-size:22px; width:22px; height:22px; }
+      i { font-size:22px; }
       &:hover { background:var(--bg); color:var(--text); } }
     .header-title { font-size:16px; font-weight:600; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .header-right { display:flex; align-items:center; gap:4px; flex-shrink:0; }
@@ -135,7 +135,7 @@ interface NotificationItem {
     .settings-panel { padding:16px; min-width:280px; }
     .settings-user-header { display:flex; align-items:center; gap:12px; margin-bottom:12px; border-bottom:1px solid var(--border); padding-bottom:12px; }
     .settings-actions { border-top:1px solid var(--border); padding-top:8px; }
-    .info-row { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text); mat-icon { font-size:18px; width:18px; height:18px; color:var(--muted); flex-shrink:0; } span { flex:1; word-break:break-all; } }
+    .info-row { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text); i { font-size:18px; width:18px; color:var(--muted); flex-shrink:0; text-align:center; } span { flex:1; word-break:break-all; } }
   `]
 })
 export class HeaderComponent {
