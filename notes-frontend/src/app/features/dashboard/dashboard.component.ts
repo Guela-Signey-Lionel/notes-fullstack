@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,7 +11,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData } from 'chart.js';
 import { Chart, registerables } from 'chart.js';
-import { forkJoin, catchError, of } from 'rxjs';
+import { forkJoin, catchError, of, tap } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { ReferentielService } from '../../core/services/referentiel.service';
 import { MoyenneService } from '../../core/services/moyenne.service';
@@ -21,6 +21,8 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/c
 import { UserEditDialogComponent } from '../../shared/components/user-edit-dialog/user-edit-dialog.component';
 import { Promotion, Semestre, ClassementResponse, Note, MoyenneResponse, MoyenneAnnuelle, ClassementAnnuelResponse } from '../../core/models';
 import { ExportService } from '../../core/services/export.service';
+import { CacheService } from '../../core/services/cache.service';
+import { AutoRefreshComponent } from '../../shared/components/auto-refresh/auto-refresh.component';
 
 Chart.register(...registerables);
 
@@ -28,9 +30,11 @@ Chart.register(...registerables);
   selector: 'app-dashboard',
   standalone: true,
   imports: [CommonModule, RouterLink, MatButtonModule, MatIconModule,
-            MatProgressSpinnerModule, MatProgressBarModule, MatTooltipModule, BaseChartDirective],
+            MatProgressSpinnerModule, MatProgressBarModule, MatTooltipModule, BaseChartDirective,
+            AutoRefreshComponent],
   template: `
     <div class="fade-in">
+      <app-auto-refresh [autoRefresh]="true" (onRefresh)="refreshDashboard()"></app-auto-refresh>
       <!-- Section Profil -->
       <div id="section-profil" class="profil-card">
         <div class="profil-header">
@@ -550,7 +554,7 @@ Chart.register(...registerables);
     @media(max-width:768px) { .charts-row { grid-template-columns:1fr; } }
   `]
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
   private auth    = inject(AuthService);
   private refSvc  = inject(ReferentielService);
   private moyenneS= inject(MoyenneService);
@@ -586,6 +590,7 @@ export class DashboardComponent implements OnInit {
     return u?.photoUrl || null;
   });
 
+  private cacheSvc = inject(CacheService);
   private snack = inject(MatSnackBar);
 
   removePhoto(): void {
@@ -761,6 +766,7 @@ export class DashboardComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.initCache();
     this.userSvc.getEtudiants(0, 1).subscribe(r => this.nbEtudiants.set(r.totalElements));
     this.userSvc.getEnseignants().subscribe(l => this.nbEnseignants.set(l.length));
     this.refSvc.getPromotions().subscribe(p => {
@@ -1124,6 +1130,28 @@ export class DashboardComponent implements OnInit {
   notesSaisies       = signal(0);
   moyenneNotes       = signal(0);
   tauxReussiteEnseignant = signal(0);
+
+  // ── Cache & Auto-refresh ─────────────────────────────────────────────
+  private cacheKeys = ['dashboard-kpis', 'dashboard-enseignants'];
+
+  private initCache(): void {
+    this.cacheKeys.forEach(k => this.cacheSvc.stopAutoRefresh(k));
+    this.cacheSvc.startAutoRefresh('dashboard-kpis', () =>
+      this.userSvc.getEtudiants(0, 1).pipe(tap((r: any) => this.nbEtudiants.set(r.totalElements)))
+    );
+    this.cacheSvc.startAutoRefresh('dashboard-enseignants', () =>
+      this.userSvc.getEnseignants().pipe(tap((l: any[]) => this.nbEnseignants.set(l.length)))
+    );
+  }
+
+  refreshDashboard(): void {
+    this.cacheSvc.invalidateAll();
+    this.ngOnInit();
+  }
+
+  ngOnDestroy(): void {
+    this.cacheKeys.forEach(k => this.cacheSvc.stopAutoRefresh(k));
+  }
 
   private loadEnseignantStats(): void {
     const u = this.user();

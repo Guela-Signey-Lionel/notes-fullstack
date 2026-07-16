@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -8,15 +8,20 @@ import { ChartConfiguration, ChartData } from 'chart.js';
 import { Chart, registerables } from 'chart.js';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
+import { CacheService } from '../../core/services/cache.service';
+import { AutoRefreshComponent } from '../../shared/components/auto-refresh/auto-refresh.component';
+import { switchMap, tap } from 'rxjs';
 
 Chart.register(...registerables);
 
 @Component({
   selector: 'app-statistiques',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatProgressSpinnerModule, MatTooltipModule, BaseChartDirective],
+  imports: [CommonModule, MatButtonModule, MatProgressSpinnerModule, MatTooltipModule, BaseChartDirective,
+            AutoRefreshComponent],
   template: `
     <div class="fade-in">
+      <app-auto-refresh [autoRefresh]="true" (onRefresh)="loadData()"></app-auto-refresh>
       <div class="page-header">
         <div><h1>Statistiques globales</h1><p>Vue d'ensemble des données académiques</p></div>
       </div>
@@ -25,22 +30,24 @@ Chart.register(...registerables);
         <div class="loading-center" style="padding:60px"><mat-spinner /></div>
       }
 
-      @if (data(); let d) {
-        <!-- KPIs globaux -->
-        <div class="kpi-grid" style="margin-bottom:24px">
-          <div class="kpi-card">
-            <div class="kpi-icon purple"><i class="fas fa-graduation-cap"></i></div>
-            <div><div class="kpi-value">{{d.totaux.totalEtudiants}}</div><div class="kpi-label">Étudiants</div></div>
+      @if (data()) {
+        @if (data()!.totaux) {
+          <!-- KPIs globaux -->
+          <div class="kpi-grid" style="margin-bottom:24px">
+            <div class="kpi-card">
+              <div class="kpi-icon purple"><i class="fas fa-graduation-cap"></i></div>
+              <div><div class="kpi-value">{{data()!.totaux.totalEtudiants}}</div><div class="kpi-label">Étudiants</div></div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-icon blue"><i class="fas fa-layer-group"></i></div>
+              <div><div class="kpi-value">{{data()!.totaux.totalPromotions}}</div><div class="kpi-label">Promotions</div></div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-icon green"><i class="fas fa-book"></i></div>
+              <div><div class="kpi-value">{{data()!.totaux.totalFilieres}}</div><div class="kpi-label">Filières</div></div>
+            </div>
           </div>
-          <div class="kpi-card">
-            <div class="kpi-icon blue"><i class="fas fa-layer-group"></i></div>
-            <div><div class="kpi-value">{{d.totaux.totalPromotions}}</div><div class="kpi-label">Promotions</div></div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-icon green"><i class="fas fa-book"></i></div>
-            <div><div class="kpi-value">{{d.totaux.totalFilieres}}</div><div class="kpi-label">Filières</div></div>
-          </div>
-        </div>
+        }
 
         <!-- Row 1: Étudiants par filière + par promotion -->
         <div class="charts-row" style="margin-bottom:24px">
@@ -108,7 +115,7 @@ Chart.register(...registerables);
                 </tr>
               </thead>
               <tbody>
-                @for (item of d.tauxParPromotion; track item.promotion) {
+                @for (item of data()!.tauxParPromotion; track item.promotion) {
                   <tr>
                     <td><strong>{{item.promotion}}</strong></td>
                     <td>{{item.filiere}}</td>
@@ -147,8 +154,9 @@ Chart.register(...registerables);
     @media(max-width:900px) { .charts-row { grid-template-columns:1fr; } }
   `]
 })
-export class StatistiquesComponent implements OnInit {
+export class StatistiquesComponent implements OnInit, OnDestroy {
   private http = inject(HttpClient);
+  private cacheSvc = inject(CacheService);
   loading = signal(false);
   data = signal<any>(null);
   colors = ['#3B82F6','#8B5CF6','#10B981','#F59E0B','#EF4444','#EC4899','#14B8A6','#F97316'];
@@ -272,6 +280,16 @@ export class StatistiquesComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadData();
+    this.cacheSvc.stopAutoRefresh('stats');
+    this.cacheSvc.startAutoRefresh('stats', () =>
+      this.http.get<any>(`${environment.apiUrl}/stats/globales`).pipe(
+        tap(d => { this.data.set(d); this.buildCharts(d); })
+      )
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.cacheSvc.stopAutoRefresh('stats');
   }
 
   loadData(): void {
