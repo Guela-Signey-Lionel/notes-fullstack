@@ -265,6 +265,66 @@ public class ReferentielService {
         }
     }
 
+    // ── Suppressions ──────────────────────────────────────────────────────────
+    public void deleteFiliere(UUID id) {
+        Filiere f = filiereRepo.findById(id)
+            .orElseThrow(() -> NotesException.notFound("Filière"));
+        f.setActif(false);
+        filiereRepo.save(f);
+    }
+
+    public PromotionResponse updatePromotion(UUID id, CreatePromotionRequest req) {
+        Promotion p = promotionRepo.findById(id)
+            .orElseThrow(() -> NotesException.notFound("Promotion"));
+        p.setNom(req.getNom());
+        p.setAnneeAcademique(req.getAnneeAcademique());
+        return mapPromotion(promotionRepo.save(p));
+    }
+
+    public void deletePromotion(UUID id) {
+        Promotion p = promotionRepo.findById(id)
+            .orElseThrow(() -> NotesException.notFound("Promotion"));
+        p.setActif(false);
+        promotionRepo.save(p);
+    }
+
+    public SemestreResponse updateSemestre(UUID id, CreateSemestreRequest req) {
+        Semestre s = semestreRepo.findById(id)
+            .orElseThrow(() -> NotesException.notFound("Semestre"));
+        s.setNumero(req.getNumero());
+        s.setAnneeAcademique(req.getAnneeAcademique());
+        if (req.getDateDebut() != null) s.setDateDebut(req.getDateDebut());
+        if (req.getDateFin() != null) s.setDateFin(req.getDateFin());
+        return mapSemestre(semestreRepo.save(s));
+    }
+
+    public void deleteSemestre(UUID id) {
+        Semestre s = semestreRepo.findById(id)
+            .orElseThrow(() -> NotesException.notFound("Semestre"));
+        semestreRepo.delete(s);
+    }
+
+    public UEResponse updateUE(UUID id, CreateUERequest req) {
+        UniteEnseignement ue = ueRepo.findById(id)
+            .orElseThrow(() -> NotesException.notFound("UE"));
+        ue.setCode(req.getCode());
+        ue.setIntitule(req.getIntitule());
+        ue.setCreditsEcts(req.getCreditsEcts());
+        return mapUE(ueRepo.save(ue));
+    }
+
+    public void deleteUE(UUID id) {
+        UniteEnseignement ue = ueRepo.findById(id)
+            .orElseThrow(() -> NotesException.notFound("UE"));
+        ueRepo.delete(ue);
+    }
+
+    public void deleteMatiere(UUID id) {
+        Matiere m = matiereRepo.findById(id)
+            .orElseThrow(() -> NotesException.notFound("Matière"));
+        matiereRepo.delete(m);
+    }
+
     // ── Mappers ───────────────────────────────────────────────────────────
     public FiliereResponse mapFiliere(Filiere f) {
         return FiliereResponse.builder().id(f.getId()).nom(f.getNom())

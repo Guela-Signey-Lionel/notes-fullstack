@@ -51,11 +51,11 @@ import { Promotion, Semestre, ClassementResponse, MoyenneResponse } from '../../
             <button mat-raised-button color="primary" (click)="loadClassement()"
                     [disabled]="!selectedPromo || !selectedSem || loading()">
               @if (loading()) { <mat-spinner diameter="18" style="display:inline-block;margin-right:6px"></mat-spinner> }
-              <mat-icon>calculate</mat-icon> Calculer
+              <i class="fas fa-calculator"></i> Calculer
             </button>
             @if (classement()) {
               <button mat-stroked-button (click)="exportExcel()">
-                <mat-icon>download</mat-icon> Excel
+                <i class="fas fa-download"></i> Excel
               </button>
             }
           </div>
@@ -144,11 +144,11 @@ import { Promotion, Semestre, ClassementResponse, MoyenneResponse } from '../../
               <th mat-header-cell *matHeaderCellDef>Actions</th>
               <td mat-cell *matCellDef="let m">
                 <button mat-icon-button matTooltip="Voir le détail" (click)="toggleDetail(m)">
-                  <mat-icon>{{openDetail() === m.etudiantId ? 'expand_less' : 'expand_more'}}</mat-icon>
+                  <i class="fas" [class.fa-chevron-up]="openDetail() === m.etudiantId" [class.fa-chevron-down]="openDetail() !== m.etudiantId"></i>
                 </button>
                 <button mat-icon-button matTooltip="Télécharger relevé PDF" color="primary"
                         (click)="downloadReleve(m)">
-                  <mat-icon>picture_as_pdf</mat-icon>
+                  <i class="fas fa-file-pdf"></i>
                 </button>
               </td>
             </ng-container>

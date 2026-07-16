@@ -32,7 +32,7 @@ import { Utilisateur, Promotion, Semestre, MoyenneResponse } from '../../core/mo
         <div class="page-actions">
           @if (isAdmin()) {
             <label mat-stroked-button style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;padding:6px 12px;border:1px solid currentColor;border-radius:4px;font-size:14px">
-              <mat-icon>upload</mat-icon> Import CSV
+              <i class="fas fa-upload"></i> Import CSV
               <input type="file" accept=".csv" style="display:none" (change)="onImportCSV($event)">
             </label>
           }
@@ -101,7 +101,7 @@ import { Utilisateur, Promotion, Semestre, MoyenneResponse } from '../../core/mo
             <td mat-cell *matCellDef="let e">
               <button mat-icon-button matTooltip="Voir l'historique des moyennes"
                       (click)="loadHistorique(e)">
-                <mat-icon>bar_chart</mat-icon>
+                <i class="fas fa-chart-bar"></i>
               </button>
               @if (selectedEtudiant()?.id === e.id && semestres().length > 0) {
                 <mat-select style="width:160px;font-size:12px;margin:0 6px" placeholder="Semestre"
@@ -113,7 +113,7 @@ import { Utilisateur, Promotion, Semestre, MoyenneResponse } from '../../core/mo
                 @if (selectedSemForReleve) {
                   <button mat-icon-button color="primary" matTooltip="Télécharger relevé PDF"
                           (click)="downloadReleve(e)">
-                    <mat-icon>picture_as_pdf</mat-icon>
+                    <i class="fas fa-file-pdf"></i>
                   </button>
                 }
               }
@@ -121,7 +121,7 @@ import { Utilisateur, Promotion, Semestre, MoyenneResponse } from '../../core/mo
                 <button mat-icon-button [color]="e.actif ? 'warn' : 'primary'"
                         [matTooltip]="e.actif ? 'Désactiver' : 'Activer'"
                         (click)="toggleActif(e)">
-                  <mat-icon>{{e.actif ? 'person_off' : 'person'}}</mat-icon>
+                  <i class="fas" [class.fa-user-slash]="e.actif" [class.fa-user]="!e.actif"></i>
                 </button>
               }
             </td>
@@ -146,7 +146,7 @@ import { Utilisateur, Promotion, Semestre, MoyenneResponse } from '../../core/mo
         <div class="card" style="margin-top:20px">
           <div class="card-header">
             <h2>📈 Historique — {{selectedEtudiant()!.prenom}} {{selectedEtudiant()!.nom}}</h2>
-            <button mat-icon-button (click)="selectedEtudiant.set(null)"><mat-icon>close</mat-icon></button>
+            <button mat-icon-button (click)="selectedEtudiant.set(null)"><i class="fas fa-times"></i></button>
           </div>
           <div class="historique-grid">
             @for (h of historique(); track h.semestreId) {

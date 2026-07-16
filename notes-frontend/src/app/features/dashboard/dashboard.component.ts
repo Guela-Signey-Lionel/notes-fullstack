@@ -43,7 +43,7 @@ Chart.register(...registerables);
               }
             </div>
             <button class="upload-btn" (click)="fileInput.click()" matTooltip="Changer la photo">
-              <mat-icon>camera_alt</mat-icon>
+              <i class="fas fa-camera"></i>
             </button>
             <input #fileInput type="file" accept="image/*" hidden (change)="onPhotoSelected($event)">
             @if (uploading()) {
@@ -56,24 +56,24 @@ Chart.register(...registerables);
           <div class="profil-info">
             <h2>{{user()?.prenom}} {{user()?.nom}}</h2>
             <span class="badge" [class]="roleBadgeClass()">{{roleLabel()}}</span>
-            <p class="profil-email"><mat-icon>email</mat-icon> {{user()?.email}}</p>
+            <p class="profil-email"><i class="fas fa-envelope"></i> {{user()?.email}}</p>
             @if (user()?.role === 'ETUDIANT') {
-              <p class="profil-detail"><mat-icon>badge</mat-icon> {{user()?.numeroEtudiant}}</p>
+              <p class="profil-detail"><i class="fas fa-id-card"></i> {{user()?.numeroEtudiant}}</p>
             }
             @if (user()?.role === 'ENSEIGNANT') {
-              <p class="profil-detail"><mat-icon>school</mat-icon> {{user()?.specialite}} — {{user()?.grade}}</p>
+              <p class="profil-detail"><i class="fas fa-chalkboard"></i> {{user()?.specialite}} — {{user()?.grade}}</p>
             }
             @if (user()?.role === 'ADMIN') {
-              <p class="profil-detail"><mat-icon>admin_panel_settings</mat-icon> <strong>Signey Lionel Guela</strong> — Administrateur système</p>
+              <p class="profil-detail"><i class="fas fa-shield-alt"></i> <strong>Signey Lionel Guela</strong> — Administrateur système</p>
             }
           </div>
           @if (photoUrl()) {
             <button class="remove-photo-btn" mat-icon-button (click)="removePhoto()" matTooltip="Supprimer la photo">
-              <mat-icon>delete</mat-icon>
+              <i class="fas fa-trash-alt"></i>
             </button>
           }
           <button class="edit-profil-btn" mat-icon-button (click)="editProfile()" matTooltip="Modifier mon profil">
-            <mat-icon>edit</mat-icon>
+            <i class="fas fa-edit"></i>
           </button>
         </div>
       </div>
@@ -85,8 +85,8 @@ Chart.register(...registerables);
         </div>
         @if (isAdmin()) {
           <div class="page-actions">
-            <button mat-stroked-button routerLink="/referentiel"><mat-icon>settings</mat-icon> Référentiel</button>
-            <button mat-raised-button color="primary" routerLink="/utilisateurs"><mat-icon>person_add</mat-icon> Nouveau compte</button>
+            <button mat-stroked-button routerLink="/referentiel"><i class="fas fa-cog"></i> Référentiel</button>
+            <button mat-raised-button color="primary" routerLink="/utilisateurs"><i class="fas fa-user-plus"></i> Nouveau compte</button>
           </div>
         }
       </div>
@@ -151,7 +151,7 @@ Chart.register(...registerables);
                 }
               </select>
               <button mat-stroked-button (click)="downloadReleve()" [disabled]="!selectedStudentSemId()">
-                <mat-icon>download</mat-icon> Relevé PDF
+                <i class="fas fa-download"></i> Relevé PDF
               </button>
             </div>
           </div>
@@ -323,7 +323,7 @@ Chart.register(...registerables);
 
               <button mat-raised-button color="primary" (click)="loadClassement()"
                       [disabled]="!canLoadClassement() || loadingChart()">
-                <mat-icon>bar_chart</mat-icon> Afficher
+                <i class="fas fa-chart-bar"></i> Afficher
               </button>
             }
           </div>
@@ -418,7 +418,7 @@ Chart.register(...registerables);
                 <span style="font-size:12px;color:var(--muted)">{{totalEtudiants()}} étudiant(s)</span>
                 @if (selectedPromoId() && selectedSemId()) {
                   <button mat-stroked-button (click)="exportClassement()">
-                    <mat-icon>download</mat-icon> Excel
+                    <i class="fas fa-download"></i> Excel
                   </button>
                 }
               </div>

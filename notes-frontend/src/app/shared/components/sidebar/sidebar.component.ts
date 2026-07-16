@@ -29,7 +29,7 @@ interface NavItem {
           <div><span class="name">PKFokam</span><span class="sub">{{brandSubtitle()}}</span></div>
         </div>
         <button class="sidebar-close-btn" (click)="sidebarState.close()">
-          <mat-icon>close</mat-icon>
+          <i class="fas fa-xmark" style="font-size:20px"></i>
         </button>
       </div>
       <nav class="nav">
@@ -37,11 +37,11 @@ interface NavItem {
         @for (item of visibleItems(); track item.label) {
           @if (item.fragment) {
             <a class="nav-item" (click)="onNavClick(); scrollTo(item.fragment)">
-              <mat-icon>{{item.icon}}</mat-icon><span>{{item.label}}</span>
+              <i class="{{item.icon}}" style="width:19px;text-align:center;font-size:15px"></i><span>{{item.label}}</span>
             </a>
           } @else {
             <a [routerLink]="item.route" routerLinkActive="active" class="nav-item" (click)="onNavClick()">
-              <mat-icon>{{item.icon}}</mat-icon><span>{{item.label}}</span>
+              <i class="{{item.icon}}" style="width:19px;text-align:center;font-size:15px"></i><span>{{item.label}}</span>
             </a>
           }
         }
@@ -62,10 +62,10 @@ interface NavItem {
         </div>
         <div class="footer-actions">
           <a class="footer-btn" routerLink="/parametres" matTooltip="Paramètres" (click)="onNavClick()">
-            <mat-icon>settings</mat-icon>
+            <i class="fas fa-gear"></i>
           </a>
           <button class="footer-btn" (click)="logout()" matTooltip="Déconnexion">
-            <mat-icon>logout</mat-icon>
+            <i class="fas fa-right-from-bracket"></i>
           </button>
         </div>
       </div>
@@ -106,15 +106,16 @@ export class SidebarComponent {
   user = this.authService.currentUser;
 
   private nav: NavItem[] = [
-    { icon:'dashboard',           label:'Tableau de bord',      route:'/dashboard' },
-    { icon:'school',              label:'Étudiants',            route:'/etudiants',       roles:['ADMIN','ENSEIGNANT'] },
-    { icon:'edit_note',           label:'Saisie des notes',     route:'/notes',           roles:['ADMIN','ENSEIGNANT'] },
-    { icon:'calculate',           label:'Moyennes',             route:'/moyennes' },
-    { icon:'account_tree',        label:'Référentiel',          route:'/referentiel',     roles:['ADMIN'] },
-    { icon:'manage_accounts',     label:'Utilisateurs',         route:'/utilisateurs',    roles:['ADMIN'] },
-    { icon:'bar_chart',           label:'Visualisation graphique', fragment:'student-charts', roles:['ETUDIANT'] },
-    { icon:'filter_list',         label:'Filtrage',               fragment:'student-filter',  roles:['ETUDIANT'] },
-    { icon:'settings',            label:'Paramètres',             route:'/parametres' },
+    { icon:'fas fa-chart-pie',           label:'Tableau de bord',      route:'/dashboard' },
+    { icon:'fas fa-graduation-cap',      label:'Étudiants',            route:'/etudiants',       roles:['ADMIN','ENSEIGNANT'] },
+    { icon:'fas fa-pen-to-square',       label:'Saisie des notes',     route:'/notes',           roles:['ADMIN','ENSEIGNANT'] },
+    { icon:'fas fa-calculator',          label:'Moyennes',             route:'/moyennes' },
+    { icon:'fas fa-sitemap',             label:'Référentiel',          route:'/referentiel',     roles:['ADMIN'] },
+    { icon:'fas fa-users-gear',          label:'Utilisateurs',         route:'/utilisateurs',    roles:['ADMIN'] },
+    { icon:'fas fa-chart-simple',        label:'Statistiques',         route:'/statistiques',    roles:['ADMIN','ENSEIGNANT'] },
+    { icon:'fas fa-chart-bar',           label:'Visualisation graphique', fragment:'student-charts', roles:['ETUDIANT'] },
+    { icon:'fas fa-filter',              label:'Filtrage',               fragment:'student-filter',  roles:['ETUDIANT'] },
+    { icon:'fas fa-gear',                label:'Paramètres',             route:'/parametres' },
   ];
 
   visibleItems = computed(() => {

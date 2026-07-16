@@ -36,6 +36,13 @@ public class ReferentielController {
         return ResponseEntity.ok(service.updateFiliere(id, req));
     }
 
+    @DeleteMapping("/filieres/{id}")
+    @Operation(summary="Supprimer une filière", description="Supprime une filière. Réservé aux administrateurs.")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteFiliere(@PathVariable UUID id) {
+        service.deleteFiliere(id); return ResponseEntity.noContent().build();
+    }
+
     // Promotions
     @GetMapping("/promotions")
     @Operation(summary="Lister les promotions", description="Retourne la liste des promotions. Peut être filtrée par filière via le paramètre optionnel 'filiereId'.")
@@ -51,6 +58,20 @@ public class ReferentielController {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.createPromotion(req));
     }
 
+    @PutMapping("/promotions/{id}")
+    @Operation(summary="Modifier une promotion", description="Met à jour les informations d'une promotion existante. Réservé aux administrateurs.")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<PromotionResponse> updatePromotion(@PathVariable UUID id, @Valid @RequestBody CreatePromotionRequest req) {
+        return ResponseEntity.ok(service.updatePromotion(id, req));
+    }
+
+    @DeleteMapping("/promotions/{id}")
+    @Operation(summary="Supprimer une promotion", description="Supprime une promotion. Réservé aux administrateurs.")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deletePromotion(@PathVariable UUID id) {
+        service.deletePromotion(id); return ResponseEntity.noContent().build();
+    }
+
     // Semestres
     @GetMapping("/semestres")
     @Operation(summary="Lister les semestres", description="Retourne la liste des semestres pour une promotion donnée. Le paramètre 'promotionId' est obligatoire.")
@@ -64,6 +85,20 @@ public class ReferentielController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<SemestreResponse> createSemestre(@Valid @RequestBody CreateSemestreRequest req) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.createSemestre(req));
+    }
+
+    @PutMapping("/semestres/{id}")
+    @Operation(summary="Modifier un semestre", description="Met à jour les informations d'un semestre existant. Réservé aux administrateurs.")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<SemestreResponse> updateSemestre(@PathVariable UUID id, @Valid @RequestBody CreateSemestreRequest req) {
+        return ResponseEntity.ok(service.updateSemestre(id, req));
+    }
+
+    @DeleteMapping("/semestres/{id}")
+    @Operation(summary="Supprimer un semestre", description="Supprime un semestre. Réservé aux administrateurs.")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteSemestre(@PathVariable UUID id) {
+        service.deleteSemestre(id); return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/semestres/{id}/cloturer")
@@ -89,6 +124,20 @@ public class ReferentielController {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.createUE(req));
     }
 
+    @PutMapping("/ue/{id}")
+    @Operation(summary="Modifier une UE", description="Met à jour les informations d'une unité d'enseignement existante. Réservé aux administrateurs.")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UEResponse> updateUE(@PathVariable UUID id, @Valid @RequestBody CreateUERequest req) {
+        return ResponseEntity.ok(service.updateUE(id, req));
+    }
+
+    @DeleteMapping("/ue/{id}")
+    @Operation(summary="Supprimer une UE", description="Supprime une unité d'enseignement. Réservé aux administrateurs.")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteUE(@PathVariable UUID id) {
+        service.deleteUE(id); return ResponseEntity.noContent().build();
+    }
+
     // Matières
     @GetMapping("/matieres")
     @Operation(summary="Lister les matières", description="Retourne la liste des matières, filtrée par semestre ('semestreId') ou par enseignant ('enseignantId'). Au moins un des deux paramètres doit être fourni.")
@@ -112,6 +161,13 @@ public class ReferentielController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MatiereResponse> updateMatiere(@PathVariable UUID id, @Valid @RequestBody CreateMatiereRequest req) {
         return ResponseEntity.ok(service.updateMatiere(id, req));
+    }
+
+    @DeleteMapping("/matieres/{id}")
+    @Operation(summary="Supprimer une matière", description="Supprime une matière. Réservé aux administrateurs.")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteMatiere(@PathVariable UUID id) {
+        service.deleteMatiere(id); return ResponseEntity.noContent().build();
     }
 
     // Inscriptions

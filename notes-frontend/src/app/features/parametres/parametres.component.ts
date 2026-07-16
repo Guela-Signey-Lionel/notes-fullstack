@@ -39,15 +39,15 @@ import { UserEditDialogComponent } from '../../shared/components/user-edit-dialo
               </div>
               <div class="photo-actions">
                 <button mat-raised-button color="primary" (click)="fileInput.click()" [disabled]="uploading()">
-                  <mat-icon>camera_alt</mat-icon> Choisir une photo
+                  <i class="fas fa-camera"></i> Choisir une photo
                 </button>
                 @if (photoUrl()) {
                   <button mat-stroked-button color="warn" (click)="removePhoto()">
-                    <mat-icon>delete</mat-icon> Supprimer
+                    <i class="fas fa-trash-alt"></i> Supprimer
                   </button>
                 }
                 <button mat-stroked-button (click)="editProfile()">
-                  <mat-icon>edit</mat-icon> Modifier
+                  <i class="fas fa-edit"></i> Modifier
                 </button>
                 <input #fileInput type="file" accept="image/*" hidden (change)="onPhotoSelected($event)">
               </div>

@@ -27,7 +27,7 @@ import { UserEditDialogComponent } from '../../shared/components/user-edit-dialo
       <div class="page-header">
         <div><h1>Gestion des utilisateurs</h1><p>Comptes enseignants, étudiants et administrateurs</p></div>
         <button mat-raised-button color="primary" (click)="showForm.set(!showForm())">
-          <mat-icon>{{showForm() ? 'close' : 'person_add'}}</mat-icon>
+          <i class="fas" [class.fa-times]="showForm()" [class.fa-user-plus]="!showForm()"></i>
           {{showForm() ? 'Fermer' : 'Nouveau compte'}}
         </button>
       </div>
@@ -77,7 +77,7 @@ import { UserEditDialogComponent } from '../../shared/components/user-edit-dialo
               <button mat-button type="button" (click)="showForm.set(false)">Annuler</button>
               <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || saving()">
                 @if (saving()) { <mat-spinner diameter="18" style="display:inline-block;margin-right:6px"></mat-spinner> }
-                <mat-icon>save</mat-icon> Créer
+                <i class="fas fa-save"></i> Créer
               </button>
             </div>
           </form>
@@ -167,12 +167,12 @@ import { UserEditDialogComponent } from '../../shared/components/user-edit-dialo
             <th mat-header-cell *matHeaderCellDef>Actions</th>
             <td mat-cell *matCellDef="let u">
               <button mat-icon-button color="primary" matTooltip="Modifier" (click)="editUser(u)">
-                <mat-icon>edit</mat-icon>
+                <i class="fas fa-edit"></i>
               </button>
               <button mat-icon-button [color]="u.actif ? 'warn' : 'primary'"
                       [matTooltip]="u.actif ? 'Désactiver' : 'Activer'"
                       (click)="toggle(u)">
-                <mat-icon>{{u.actif ? 'person_off' : 'person'}}</mat-icon>
+                <i class="fas" [class.fa-user-slash]="u.actif" [class.fa-user]="!u.actif"></i>
               </button>
             </td>
           </ng-container>

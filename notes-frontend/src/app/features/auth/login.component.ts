@@ -51,7 +51,7 @@ import { AuthService } from '../../core/services/auth.service';
                   <span class="role-desc">{{r.description}}</span>
                 </div>
                 <span class="role-check">
-                  <mat-icon>{{selectedRole() === r.value ? 'radio_button_checked' : 'radio_button_unchecked'}}</mat-icon>
+                  <i class="fas" [class.fa-dot-circle]="selectedRole() === r.value" [class.fa-circle]="selectedRole() !== r.value"></i>
                 </span>
               </button>
             }
@@ -71,24 +71,24 @@ import { AuthService } from '../../core/services/auth.service';
                 <mat-icon matPrefix>lock</mat-icon>
                 <input matInput formControlName="motDePasse" [type]="showPwd() ? 'text' : 'password'">
                 <button mat-icon-button matSuffix type="button" (click)="showPwd.set(!showPwd())">
-                  <mat-icon>{{showPwd() ? 'visibility_off' : 'visibility'}}</mat-icon>
+                  <i class="fas" [class.fa-eye-slash]="showPwd()" [class.fa-eye]="!showPwd()"></i>
                 </button>
               </mat-form-field>
 
               @if (error()) {
-                <div class="error-box"><mat-icon>error_outline</mat-icon> {{error()}}</div>
+                <div class="error-box"><i class="fas fa-exclamation-circle"></i> {{error()}}</div>
               }
 
               <button mat-raised-button type="submit" [disabled]="form.invalid || loading()"
                       class="login-submit-btn">
                 @if (loading()) { <mat-spinner diameter="20" style="display:inline-block;margin-right:8px"></mat-spinner> }
-                <mat-icon>login</mat-icon>
+                <i class="fas fa-sign-in-alt"></i>
                 Se connecter comme {{selectedRoleLabel()}}
               </button>
             </form>
           } @else {
             <div class="select-role-hint">
-              <mat-icon>touch_app</mat-icon>
+              <i class="fas fa-hand-pointer"></i>
               <span>Sélectionnez votre profil ci-dessus pour vous connecter</span>
             </div>
           }

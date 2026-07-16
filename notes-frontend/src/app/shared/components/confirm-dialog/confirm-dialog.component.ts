@@ -10,7 +10,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
   template: `
     <div class="dialog-wrapper">
       <div class="dialog-icon">
-        <mat-icon>delete_forever</mat-icon>
+        <i class="fas fa-trash" style="font-size:48px;width:48px;height:48px;color:#EF4444"></i>
       </div>
       <h2 mat-dialog-title>{{data.titre || 'Confirmation'}}</h2>
       <mat-dialog-content>
@@ -19,7 +19,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
       <mat-dialog-actions align="end">
         <button mat-stroked-button (click)="dialogRef.close(false)">Annuler</button>
         <button mat-raised-button color="warn" (click)="dialogRef.close(true)">
-          <mat-icon>delete</mat-icon> {{data.btnConfirmer || 'Confirmer'}}
+          <i class="fas fa-trash-alt"></i> {{data.btnConfirmer || 'Confirmer'}}
         </button>
       </mat-dialog-actions>
     </div>

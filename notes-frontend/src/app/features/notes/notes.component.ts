@@ -72,16 +72,16 @@ import { Promotion, Semestre, Matiere, Note, Utilisateur, CsvImportResponse, Sta
         <!-- Onglets actions -->
         <div class="actions-tabs">
           <button [class.active]="activeTab() === 'batch'" (click)="activeTab.set('batch')">
-            <mat-icon>table_rows</mat-icon> Saisie par lot
+            <i class="fas fa-table"></i> Saisie par lot
           </button>
           <button [class.active]="activeTab() === 'csv'" (click)="activeTab.set('csv')">
-            <mat-icon>upload_file</mat-icon> Import CSV
+            <i class="fas fa-cloud-upload-alt"></i> Import CSV
           </button>
           <button [class.active]="activeTab() === 'notes'" (click)="activeTab.set('notes'); loadNotes()">
-            <mat-icon>list</mat-icon> Notes saisies
+            <i class="fas fa-list"></i> Notes saisies
           </button>
           <button [class.active]="activeTab() === 'stats'" (click)="activeTab.set('stats'); loadStats()">
-            <mat-icon>bar_chart</mat-icon> Statistiques
+            <i class="fas fa-chart-bar"></i> Statistiques
           </button>
         </div>
 
@@ -101,13 +101,13 @@ import { Promotion, Semestre, Matiere, Note, Utilisateur, CsvImportResponse, Sta
                 </mat-form-field>
                 <button mat-raised-button color="primary" (click)="submitBatch()" [disabled]="savingBatch()">
                   @if (savingBatch()) { <mat-spinner diameter="18" style="display:inline-block;margin-right:6px"></mat-spinner> }
-                  <mat-icon>save</mat-icon> Enregistrer tout
+                  <i class="fas fa-save"></i> Enregistrer tout
                 </button>
                 <button mat-stroked-button color="warn" (click)="verrouillerMatiere()" [disabled]="selectedSem.statut === 'CLOTURE'">
-                  <mat-icon>lock</mat-icon> Verrouiller
+                  <i class="fas fa-lock"></i> Verrouiller
                 </button>
                 <button mat-stroked-button (click)="exportNotesExcel()">
-                  <mat-icon>download</mat-icon> Excel
+                  <i class="fas fa-download"></i> Excel
                 </button>
               </div>
             </div>
@@ -177,7 +177,7 @@ import { Promotion, Semestre, Matiere, Note, Utilisateur, CsvImportResponse, Sta
             <div class="card-header"><h2>Import CSV — {{selectedMatiere.intitule}}</h2></div>
             <div class="csv-zone">
               <div class="csv-info">
-                <mat-icon style="font-size:36px;color:var(--muted)">upload_file</mat-icon>
+                <i class="fas fa-cloud-upload-alt" style="font-size:36px;color:var(--muted)"></i>
                 <h3>Format attendu</h3>
                 <code>numero_etudiant;note;commentaire</code>
                 <p style="color:var(--muted);font-size:12px">La première ligne (en-tête) sera ignorée</p>
@@ -185,11 +185,11 @@ import { Promotion, Semestre, Matiere, Note, Utilisateur, CsvImportResponse, Sta
               <div class="csv-actions">
                 <input type="file" #csvInput accept=".csv" style="display:none" (change)="onCsvSelected($event)">
                 <button mat-raised-button color="primary" (click)="csvInput.click()">
-                  <mat-icon>attach_file</mat-icon> Choisir un fichier CSV
+                  <i class="fas fa-paperclip"></i> Choisir un fichier CSV
                 </button>
                 @if (csvFile()) {
                   <div class="csv-file-info">
-                    <mat-icon>description</mat-icon> {{csvFile()!.name}}
+                    <i class="fas fa-file-alt"></i> {{csvFile()!.name}}
                     <button mat-stroked-button color="primary" (click)="importCSV()" [disabled]="importingCSV()">
                       @if (importingCSV()) { <mat-spinner diameter="16" style="display:inline-block;margin-right:6px"></mat-spinner> }
                       Importer
@@ -223,7 +223,7 @@ import { Promotion, Semestre, Matiere, Note, Utilisateur, CsvImportResponse, Sta
             <div class="card-header">
               <h2>📊 Statistiques — {{selectedMatiere.intitule}}</h2>
               <button mat-stroked-button routerLink="/moyennes">
-                <mat-icon>open_in_new</mat-icon> Voir le classement
+                <i class="fas fa-external-link-alt"></i> Voir le classement
               </button>
             </div>
             @if (loadingStats()) {
@@ -289,7 +289,7 @@ import { Promotion, Semestre, Matiere, Note, Utilisateur, CsvImportResponse, Sta
               <div style="display:flex;align-items:center;gap:8px">
                 <span style="font-size:12px;color:var(--muted)">{{notes().length}} note(s)</span>
                 <button mat-stroked-button (click)="exportNotesExcel()">
-                  <mat-icon>download</mat-icon> Excel
+                  <i class="fas fa-download"></i> Excel
                 </button>
               </div>
             </div>

@@ -24,20 +24,20 @@ interface NotificationItem {
     <header class="header">
       <div class="header-left">
         <button class="hamburger-btn" (click)="sidebarState.toggle()" matTooltip="Menu">
-          <mat-icon>{{sidebarState.isOpen() ? 'close' : 'menu'}}</mat-icon>
+          <i class="fas" [class.fa-times]="sidebarState.isOpen()" [class.fa-bars]="!sidebarState.isOpen()"></i>
         </button>
         <span class="header-title">Gestion des Notes — PKFokam Institute</span>
       </div>
       <div class="header-right">
         <!-- Dark Mode Toggle -->
         <button mat-icon-button (click)="toggleTheme()" [matTooltip]="isDark() ? 'Mode clair' : 'Mode sombre'" class="header-btn theme-btn">
-          <mat-icon>{{isDark() ? 'light_mode' : 'dark_mode'}}</mat-icon>
+          <i class="fas" [class.fa-sun]="isDark()" [class.fa-moon]="!isDark()"></i>
         </button>
 
         <!-- Bouton Notification -->
         <button mat-icon-button [matBadge]="notifCount()" matBadgeSize="small" matBadgeColor="warn"
                 [matMenuTriggerFor]="notifMenu" matTooltip="Notifications" class="header-btn notif-btn">
-          <mat-icon>notifications</mat-icon>
+          <i class="fas fa-bell"></i>
         </button>
         <mat-menu #notifMenu>
           <div class="notif-panel">
@@ -65,7 +65,7 @@ interface NotificationItem {
 
         <!-- Icône Paramètre avec infos utilisateur -->
         <button mat-icon-button [matMenuTriggerFor]="settingsMenu" matTooltip="Paramètres" class="header-btn settings-btn">
-          <mat-icon>settings</mat-icon>
+          <i class="fas fa-cog"></i>
         </button>
         <mat-menu #settingsMenu>
           <div class="settings-panel">
@@ -83,26 +83,26 @@ interface NotificationItem {
               </div>
             </div>
             <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
-              <div class="info-row"><mat-icon>email</mat-icon><span>{{user()?.email}}</span></div>
+              <div class="info-row"><i class="fas fa-envelope"></i><span>{{user()?.email}}</span></div>
               @if (user()?.telephone) {
-                <div class="info-row"><mat-icon>phone</mat-icon><span>{{user()?.telephone}}</span></div>
+                <div class="info-row"><i class="fas fa-phone"></i><span>{{user()?.telephone}}</span></div>
               }
               @if (user()?.adresse) {
-                <div class="info-row"><mat-icon>location_on</mat-icon><span>{{user()?.adresse}}</span></div>
+                <div class="info-row"><i class="fas fa-map-marker-alt"></i><span>{{user()?.adresse}}</span></div>
               }
               @if (user()?.numeroEtudiant) {
-                <div class="info-row"><mat-icon>badge</mat-icon><span>{{user()?.numeroEtudiant}}</span></div>
+                <div class="info-row"><i class="fas fa-id-card"></i><span>{{user()?.numeroEtudiant}}</span></div>
               }
               @if (user()?.specialite) {
-                <div class="info-row"><mat-icon>school</mat-icon><span>{{user()?.specialite}} — {{user()?.grade}}</span></div>
+                <div class="info-row"><i class="fas fa-chalkboard"></i><span>{{user()?.specialite}} — {{user()?.grade}}</span></div>
               }
             </div>
             <div class="settings-actions">
               <button mat-menu-item (click)="scrollToProfil()">
-                <mat-icon>person</mat-icon> Mon profil
+                <i class="fas fa-user"></i> Mon profil
               </button>
               <button mat-menu-item (click)="logout()">
-                <mat-icon>logout</mat-icon> Déconnexion
+                <i class="fas fa-sign-out-alt"></i> Déconnexion
               </button>
             </div>
           </div>

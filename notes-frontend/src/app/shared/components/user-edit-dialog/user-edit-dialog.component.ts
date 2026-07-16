@@ -18,7 +18,7 @@ import { Utilisateur } from '../../../core/models';
     <div class="dialog-wrapper">
       <div class="dialog-header">
         <div class="dialog-icon">
-          <mat-icon>edit</mat-icon>
+          <i class="fas fa-edit"></i>
         </div>
         <h2 mat-dialog-title>Modifier le profil</h2>
         <p class="dialog-subtitle">{{data.user.prenom}} {{data.user.nom}} — <span class="badge" [class]="roleCss(data.user.role)">{{roleLabel(data.user.role)}}</span></p>
@@ -76,7 +76,7 @@ import { Utilisateur } from '../../../core/models';
           @if (saving()) {
             <mat-spinner diameter="18" style="display:inline-block;margin-right:6px"></mat-spinner>
           }
-          <mat-icon>save</mat-icon> Enregistrer
+          <i class="fas fa-save"></i> Enregistrer
         </button>
       </mat-dialog-actions>
     </div>

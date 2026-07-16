@@ -12,6 +12,7 @@ export const routes: Routes = [
       { path: 'moyennes', loadComponent: () => import('./features/moyennes/moyennes.component').then(m => m.MoyennesComponent) },
       { path: 'etudiants', loadComponent: () => import('./features/etudiants/etudiants.component').then(m => m.EtudiantsComponent) },
       { path: 'utilisateurs', loadComponent: () => import('./features/utilisateurs/utilisateurs.component').then(m => m.UtilisateursComponent), canActivate: [roleGuard('ADMIN')] },
+      { path: 'statistiques', loadComponent: () => import('./features/statistiques/statistiques.component').then(m => m.StatistiquesComponent), canActivate: [roleGuard('ADMIN','ENSEIGNANT')] },
       { path: 'parametres', loadComponent: () => import('./features/parametres/parametres.component').then(m => m.ParametresComponent) },
     ]
   },
