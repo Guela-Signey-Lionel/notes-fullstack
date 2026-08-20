@@ -1,0 +1,121 @@
+// Prisma schema - Système de Gestion des Notes Étudiantes
+// Projet de fin de formation - Soutenance
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// AUTH & UTILISATEURS
+// ============================================================
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  password     String
+  name         String
+  role         String   @default("STUDENT") // STUDENT | TEACHER | ADMIN
+  avatar       String?
+  profileImage String? // base64 or URL of uploaded profile photo
+  phone        String?
+  bio          String?
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  student Student?
+  teacher Teacher?
+}
+
+// ============================================================
+// PROMOTIONS (Niveaux académiques)
+// ============================================================
+
+model Promotion {
+  id           String   @id @default(cuid())
+  name         String   // ex: "Licence 3 Informatique"
+  level        String   // L1, L2, L3, M1, M2
+  field        String   // Informatique, Mathématiques, Gestion
+  academicYear String   // ex: "2024-2025"
+  createdAt    DateTime @default(now())
+
+  students Student[]
+  courses  Course[]
+}
+
+// ============================================================
+// ÉTUDIANTS & ENSEIGNANTS
+// ============================================================
+
+model Student {
+  id          String @id @default(cuid())
+  matricule   String @unique // ex: ETU001
+  userId      String @unique
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  promotionId String
+  promotion   Promotion @relation(fields: [promotionId], references: [id])
+  birthDate   String?
+  address     String?
+  phone       String?
+
+  grades Grade[]
+}
+
+model Teacher {
+  id          String @id @default(cuid())
+  matricule   String @unique // ex: ENS001
+  userId      String @unique
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  department  String // ex: "Informatique"
+  specialty   String?
+  phone       String?
+
+  courses Course[]
+}
+
+// ============================================================
+// COURS / MATIÈRES
+// ============================================================
+
+model Course {
+  id          String   @id @default(cuid())
+  code        String   @unique // ex: INFO301
+  name        String   // ex: "Algorithmique Avancée"
+  description String?
+  coefficient Float    @default(1.0) // pondération
+  credits     Int      @default(3) // ECTS
+  semester    String   // S1, S2
+  academicYear String  // ex: "2024-2025"
+  promotionId String
+  promotion   Promotion @relation(fields: [promotionId], references: [id])
+  teacherId   String?
+  teacher     Teacher? @relation(fields: [teacherId], references: [id])
+  createdAt   DateTime @default(now())
+
+  grades Grade[]
+}
+
+// ============================================================
+// NOTES
+// ============================================================
+
+model Grade {
+  id           String   @id @default(cuid())
+  value        Float    // 0-20
+  comment      String?  // commentaire de l'enseignant sur la copie
+  studentId    String
+  student      Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  courseId     String
+  course       Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  semester    String   // S1, S2
+  academicYear String
+  createdAt    DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([studentId, courseId, semester, academicYear])
+}

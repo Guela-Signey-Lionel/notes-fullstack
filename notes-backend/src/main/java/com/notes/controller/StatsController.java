@@ -6,6 +6,7 @@ import com.notes.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -24,6 +25,7 @@ public class StatsController {
 
     @GetMapping("/globales")
     @PreAuthorize("hasAnyRole('ADMIN','ENSEIGNANT')")
+    @Transactional(readOnly = true)
     public ResponseEntity<Map<String, Object>> statsGlobales() {
         Map<String, Object> stats = new LinkedHashMap<>();
 
