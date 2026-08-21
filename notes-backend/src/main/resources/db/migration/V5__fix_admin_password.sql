@@ -7,4 +7,4 @@
 UPDATE utilisateurs
 SET mot_de_passe = '$2a$12$4GUK9KQoUCDilnIyrroTauS2zZdD53LXcIQZxbsdyhl49wG5sWBpa',
     updated_at = NOW()
-WHERE email = 'admin@pkfokam.edu';
+WHERE email = 'admin@notes.com';

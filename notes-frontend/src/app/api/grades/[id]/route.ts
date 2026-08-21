@@ -74,3 +74,4 @@ export async function PATCH(
     return NextResponse.json({ error: "Erreur" }, { status: 500 });
   }
 }
+

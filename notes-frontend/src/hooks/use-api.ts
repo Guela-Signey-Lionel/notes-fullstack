@@ -468,3 +468,4 @@ export function useDeleteGrade() {
     onError: (e: any) => toast.error(e.message || "Erreur"),
   });
 }
+

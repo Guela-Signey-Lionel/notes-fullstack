@@ -177,9 +177,9 @@ CREATE TABLE releves (
 CREATE INDEX idx_releve_etudiant ON releves(etudiant_id);
 
 -- ── Données initiales ──────────────────────────────────────
--- Admin par défaut (mot de passe : Admin@2024)
+-- Admin par défaut (mot de passe : Admin@2026)
 INSERT INTO utilisateurs (nom, prenom, email, mot_de_passe, role)
-VALUES ('Admin','Système','admin@pkfokam.edu',
+VALUES ('Admin','Système','admin@notes.com',
         '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewYpR5gzOlCDGmKy','ADMIN');
 
 -- Filière de démo

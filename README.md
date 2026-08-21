@@ -69,7 +69,7 @@ mvn spring-boot:run
 ### Compte admin par défaut
 
 ```
-Email    : admin@pkfokam.edu
+Email    : admin@notes.com
 Password : Admin@2026
 ```
 
@@ -82,7 +82,7 @@ Password : Admin@2026
 | `DB_PASSWORD`      | `notes_pass`                                    | Mot de passe PostgreSQL         |
 | `SERVER_PORT`      | `8081`                                          | Port du serveur backend         |
 | `JWT_SECRET`       | (généré)                                        | Secret pour les tokens JWT      |
-| `CORS_ORIGINS`     | `http://localhost:3000,http://localhost:4200`    | Origines CORS autorisées        |
+| `CORS_ORIGINS`     | `http://localhost:3000,http://localhost:4200`   | Origines CORS autorisées        |
 | `MAIL_HOST`        | `smtp.gmail.com`                                | Serveur SMTP                    |
 | `MAIL_USERNAME`    | (vide)                                          | Email SMTP                      |
 | `MAIL_PASSWORD`    | (vide)                                          | Mot de passe SMTP               |

@@ -9,4 +9,4 @@ SET email = 'admin@notes.com',
     nom = 'Admin',
     prenom = 'Système',
     updated_at = NOW()
-WHERE email = 'admin@pkfokam.edu';
+WHERE email = 'admin@notes.com';

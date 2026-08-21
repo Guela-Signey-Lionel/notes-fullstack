@@ -37,7 +37,7 @@ mvn spring-boot:run
 
 ## Compte admin par défaut
 ```
-Email    : admin@pkfokam.edu
+Email    : admin@notes.com
 Password : Admin@2026
 ```
 
@@ -60,46 +60,46 @@ com.notes/
 ## Endpoints principaux
 
 ### Authentification
-| Méthode | Endpoint | Description |
-|---|---|---|
-| POST | /api/v1/auth/login | Connexion JWT |
-| POST | /api/v1/auth/refresh | Renouvellement token |
-| POST | /api/v1/auth/logout | Déconnexion |
+| Méthode   | Endpoint             | Description          |
+|-----------|----------------------|----------------------|
+| POST      | /api/v1/auth/login   | Connexion JWT        |
+| POST      | /api/v1/auth/refresh | Renouvellement token |
+| POST      | /api/v1/auth/logout  | Déconnexion          |
 
 ### Référentiel
-| Méthode | Endpoint | Rôles |
-|---|---|---|
-| GET | /api/v1/filieres | Tous |
-| POST | /api/v1/filieres | ADMIN |
-| GET/POST | /api/v1/promotions | Tous / ADMIN |
-| GET/POST | /api/v1/semestres | Tous / ADMIN |
-| PATCH | /api/v1/semestres/{id}/cloturer | ADMIN |
-| GET/POST | /api/v1/ue | Tous / ADMIN |
-| GET/POST | /api/v1/matieres | Tous / ADMIN |
+| Méthode   | Endpoint                        | Rôles        |
+|-----------|---------------------------------|--------------|
+| GET       | /api/v1/filieres                | Tous         |
+| POST      | /api/v1/filieres                | ADMIN        |
+| GET/POST  | /api/v1/promotions              | Tous / ADMIN |
+| GET/POST  | /api/v1/semestres               | Tous / ADMIN |
+| PATCH     | /api/v1/semestres/{id}/cloturer | ADMIN        |
+| GET/POST  | /api/v1/ue                      | Tous / ADMIN |
+| GET/POST  | /api/v1/matieres                | Tous / ADMIN |
 
 ### Notes
-| Méthode | Endpoint | Rôles |
-|---|---|---|
-| POST | /api/v1/notes | ENSEIGNANT |
-| POST | /api/v1/notes/batch | ENSEIGNANT |
-| PUT | /api/v1/notes/{id}/corriger | ENSEIGNANT, ADMIN |
-| PATCH | /api/v1/notes/matieres/{id}/verrouiller | ENSEIGNANT, ADMIN |
-| POST | /api/v1/notes/import/csv | ENSEIGNANT, ADMIN |
+| Méthode | Endpoint                                | Rôles             |
+|---------|-----------------------------------------|-------------------|
+| POST    | /api/v1/notes                           | ENSEIGNANT        |
+| POST    | /api/v1/notes/batch                     | ENSEIGNANT        |
+| PUT     | /api/v1/notes/{id}/corriger             | ENSEIGNANT, ADMIN |
+| PATCH   | /api/v1/notes/matieres/{id}/verrouiller | ENSEIGNANT, ADMIN |
+| POST    | /api/v1/notes/import/csv                | ENSEIGNANT, ADMIN |
 
 ### Moyennes & Classements
-| Méthode | Endpoint | Rôles |
-|---|---|---|
-| GET | /api/v1/moyennes/etudiant/{id}/semestre/{id} | Tous |
-| GET | /api/v1/moyennes/classement/promotion/{id}/semestre/{id} | ADMIN, ENSEIGNANT |
-| GET | /api/v1/moyennes/etudiant/{id}/historique | Tous |
-| GET | /api/v1/moyennes/stats/matiere/{id} | ADMIN, ENSEIGNANT |
+| Méthode   | Endpoint                                                 | Rôles             |
+|-----------|----------------------------------------------------------|-------------------|
+| GET       | /api/v1/moyennes/etudiant/{id}/semestre/{id}             | Tous              |
+| GET       | /api/v1/moyennes/classement/promotion/{id}/semestre/{id} | ADMIN, ENSEIGNANT |
+| GET       | /api/v1/moyennes/etudiant/{id}/historique                | Tous              |
+| GET       | /api/v1/moyennes/stats/matiere/{id}                      | ADMIN, ENSEIGNANT |
 
 ### Exports
-| Méthode | Endpoint | Rôles |
-|---|---|---|
-| GET | /api/v1/export/releve/{etudiantId}/semestre/{semestreId} | Tous |
-| GET | /api/v1/export/classement/promotion/{id}/semestre/{id}/excel | ADMIN, ENSEIGNANT |
-| GET | /api/v1/export/notes/matiere/{id}/excel | ADMIN, ENSEIGNANT |
+| Méthode   | Endpoint                                                     | Rôles             |
+|-----------|--------------------------------------------------------------|-------------------|
+| GET       | /api/v1/export/releve/{etudiantId}/semestre/{semestreId}     | Tous              |
+| GET       | /api/v1/export/classement/promotion/{id}/semestre/{id}/excel | ADMIN, ENSEIGNANT |
+| GET       | /api/v1/export/notes/matiere/{id}/excel                      | ADMIN, ENSEIGNANT |
 
 ## Moteur de calcul des moyennes
 
@@ -113,13 +113,13 @@ Moyenne semestielle = Σ(moyenneUE × créditsECTS) / Σ(crédits)
 ```
 
 ### Barème des mentions (configurable)
-| Moyenne | Mention |
-|---|---|
-| ≥ 16 | Très Bien |
-| ≥ 14 | Bien |
-| ≥ 12 | Assez Bien |
-| ≥ 10 | Passable |
-| < 10 | Ajourné |
+| Moyenne   | Mention    |
+|-----------|------------|
+| ≥ 16      | Très Bien  |
+| ≥ 14      | Bien       |
+| ≥ 12      | Assez Bien |
+| ≥ 10      | Passable   |
+| < 10      | Ajourné    |
 
 ## Format CSV import notes
 ```

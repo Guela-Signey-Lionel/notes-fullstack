@@ -205,3 +205,4 @@ export interface BackendFiliereResponse {
   duree: number;
   actif: boolean;
 }
+
