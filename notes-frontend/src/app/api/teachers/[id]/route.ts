@@ -6,7 +6,7 @@ import type { TeacherRow } from "@/lib/types";
 function toTeacherRow(u: any): TeacherRow {
   return {
     id: u.id,
-    matricule: u.numeroEtudiant || u.id,
+    matricule: u.numeroEnseignant || "",
     name: `${u.prenom} ${u.nom}`.trim(),
     email: u.email,
     department: u.specialite || "—",
@@ -47,6 +47,8 @@ export async function PATCH(
   if (body.department) updateBody.specialite = body.department;
   if (body.specialty !== undefined) updateBody.grade = body.specialty;
   if (body.phone !== undefined) updateBody.telephone = body.phone;
+  if (body.matricule !== undefined) updateBody.numeroEnseignant = body.matricule || null;
+  if (body.matiereIds !== undefined) updateBody.matiereIds = body.matiereIds;
 
   try {
     const res = await backendFetch(`/utilisateurs/${id}`, token!, {

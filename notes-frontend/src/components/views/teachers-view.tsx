@@ -50,6 +50,7 @@ import {
   useCreateTeacher,
   useUpdateTeacher,
   useDeleteTeacher,
+  useCourses,
 } from "@/hooks/use-api";
 import { useUIStore } from "@/store/ui-store";
 import { PageHeader, EmptyState, Badge } from "@/components/common/ui-bits";
@@ -222,6 +223,7 @@ function TeacherForm({
 }) {
   const createM = useCreateTeacher();
   const updateM = useUpdateTeacher();
+  const { data: allCourses } = useCourses();
   const [form, setForm] = useState<any>({
     name: "",
     email: "",
@@ -230,6 +232,7 @@ function TeacherForm({
     department: "",
     specialty: "",
     phone: "",
+    matiereIds: [] as string[],
   });
 
   useEffect(() => {
@@ -243,6 +246,7 @@ function TeacherForm({
           department: editing.department || "",
           specialty: editing.specialty || "",
           phone: editing.phone || "",
+          matiereIds: editing.matiereIds || [],
         });
       } else {
         setForm({
@@ -253,6 +257,7 @@ function TeacherForm({
           department: "Informatique",
           specialty: "",
           phone: "",
+          matiereIds: [],
         });
       }
     }
@@ -260,9 +265,22 @@ function TeacherForm({
 
   const isEdit = !!editing;
 
+  // Toggle matiere selection
+  function toggleMatiere(id: string) {
+    setForm((f: any) => {
+      const ids: string[] = f.matiereIds || [];
+      return {
+        ...f,
+        matiereIds: ids.includes(id)
+          ? ids.filter((m: string) => m !== id)
+          : [...ids, id],
+      };
+    });
+  }
+
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.name || !form.email || !form.matricule || !form.department) {
+    if (!form.name || !form.email || !form.department) {
       toast.error("Veuillez remplir tous les champs requis");
       return;
     }
@@ -307,7 +325,7 @@ function TeacherForm({
               />
             </div>
             <div>
-              <Label htmlFor="mat">Matricule *</Label>
+              <Label htmlFor="mat">Matricule <span className="text-[#7F8C8D] text-xs">(optionnel)</span></Label>
               <Input
                 id="mat"
                 value={form.matricule}
@@ -315,7 +333,6 @@ function TeacherForm({
                   setForm((f: any) => ({ ...f, matricule: e.target.value }))
                 }
                 placeholder="ENS007"
-                required
               />
             </div>
             <div>
@@ -378,6 +395,40 @@ function TeacherForm({
               />
             </div>
           </div>
+
+          {/* Matières selection */}
+          <div>
+            <Label>Matières à enseigner</Label>
+            <p className="text-xs text-[#7F8C8D] dark:text-[#95a5a6] mb-2">
+              Sélectionnez les matières que cet enseignant doit couvrir.
+            </p>
+            {allCourses && allCourses.length > 0 ? (
+              <div className="border border-[#E0E0E0] dark:border-[#34495E] rounded-md p-2 max-h-40 overflow-y-auto space-y-1">
+                {allCourses.map((c) => (
+                  <label
+                    key={c.id}
+                    className="flex items-center gap-2 px-2 py-1 rounded hover:bg-[#F5F7FA] dark:hover:bg-white/5 cursor-pointer text-sm"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={form.matiereIds?.includes(c.id) || false}
+                      onChange={() => toggleMatiere(c.id)}
+                      className="rounded border-[#7F8C8D] text-[#1ABC9C] focus:ring-[#1ABC9C]"
+                    />
+                    <span className="text-[#2C3E50] dark:text-[#ECF0F1]">
+                      <span className="font-mono text-xs text-[#1ABC9C] mr-1">{c.code}</span>
+                      {c.name}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-[#7F8C8D] dark:text-[#95a5a6]">
+                Aucune matière disponible dans le système.
+              </p>
+            )}
+          </div>
+
           <DialogFooter>
             <Button
               type="button"

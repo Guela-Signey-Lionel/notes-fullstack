@@ -51,6 +51,7 @@ import {
   useUpdatePromotion,
   useDeletePromotion,
 } from "@/hooks/use-api";
+import { useFilieres } from "@/hooks/use-filieres";
 import { PageHeader, EmptyState, Badge } from "@/components/common/ui-bits";
 import { toast } from "sonner";
 
@@ -176,11 +177,12 @@ function PromoForm({
 }) {
   const createM = useCreatePromotion();
   const updateM = useUpdatePromotion();
+  const { data: filieres, isLoading: loadingFilieres } = useFilieres();
   const [form, setForm] = useState<any>({
     name: "",
     level: "L3",
     field: "",
-    academicYear: "2024-2025",
+    academicYear: "2025-2026",
   });
 
   useEffect(() => {
@@ -190,18 +192,18 @@ function PromoForm({
           name: editing.name || "",
           level: editing.level || "L3",
           field: editing.field || "",
-          academicYear: editing.academicYear || "2024-2025",
+          academicYear: editing.academicYear || "2025-2026",
         });
       } else {
         setForm({
           name: "",
           level: "L3",
-          field: "",
-          academicYear: "2024-2025",
+          field: filieres?.[0]?.name || "",
+          academicYear: "2025-2026",
         });
       }
     }
-  }, [open, editing]);
+  }, [open, editing, filieres]);
 
   const isEdit = !!editing;
 
@@ -268,15 +270,39 @@ function PromoForm({
             </div>
             <div>
               <Label htmlFor="field">Filière *</Label>
-              <Input
-                id="field"
-                value={form.field}
-                onChange={(e) =>
-                  setForm((f: any) => ({ ...f, field: e.target.value }))
-                }
-                placeholder="Informatique"
-                required
-              />
+              {loadingFilieres ? (
+                <div className="flex items-center gap-2 h-9 px-3 border rounded-md text-sm text-muted-foreground">
+                  <Loader2 className="size-3 animate-spin" /> Chargement...
+                </div>
+              ) : (filieres?.length ?? 0) > 0 ? (
+                <Select
+                  value={form.field}
+                  onValueChange={(v) =>
+                    setForm((f: any) => ({ ...f, field: v }))
+                  }
+                >
+                  <SelectTrigger id="field" className="w-full">
+                    <SelectValue placeholder="Choisir une filière..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {filieres!.map((f) => (
+                      <SelectItem key={f.id} value={f.name}>
+                        {f.name} ({f.code})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Input
+                  id="field"
+                  value={form.field}
+                  onChange={(e) =>
+                    setForm((f: any) => ({ ...f, field: e.target.value }))
+                  }
+                  placeholder="Informatique"
+                  required
+                />
+              )}
             </div>
           </div>
           <div>

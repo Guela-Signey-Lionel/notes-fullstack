@@ -5,6 +5,9 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+import java.util.List;
+import java.util.UUID;
+
 @Data @NoArgsConstructor @AllArgsConstructor @Builder
 public class UpdateUtilisateurRequest {
     @Size(max = 100)
@@ -22,7 +25,10 @@ public class UpdateUtilisateurRequest {
     private String specialite;
     private String grade;
     private String numeroEtudiant;
+    private String numeroEnseignant;
 
     private String telephone;
     private String adresse;
+
+    private List<UUID> matiereIds; // réassigner les matières de l'enseignant
 }

@@ -3,7 +3,14 @@
 -- ============================================================
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- ── Enums ─────────────────────────────────────────────────
+-- ── Enums (supprimer d'abord si existants) ─────────────────
+DROP TYPE IF EXISTS statut_note_enum CASCADE;
+DROP TYPE IF EXISTS niveau_filiere CASCADE;
+DROP TYPE IF EXISTS mention_enum CASCADE;
+DROP TYPE IF EXISTS type_note CASCADE;
+DROP TYPE IF EXISTS statut_semestre CASCADE;
+DROP TYPE IF EXISTS role_utilisateur CASCADE;
+
 CREATE TYPE role_utilisateur  AS ENUM ('ADMIN','ENSEIGNANT','ETUDIANT');
 CREATE TYPE statut_semestre   AS ENUM ('OUVERT','CLOTURE');
 CREATE TYPE type_note         AS ENUM ('CC','EXAMEN','UNIQUE');
@@ -12,7 +19,7 @@ CREATE TYPE niveau_filiere    AS ENUM ('LICENCE','MASTER','DOCTORAT');
 CREATE TYPE statut_note_enum  AS ENUM ('PRESENT','ABSENT','DISPENSE');
 
 -- ── Utilisateurs ──────────────────────────────────────────
-CREATE TABLE utilisateurs (
+CREATE TABLE IF NOT EXISTS utilisateurs (
     id           UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     nom          VARCHAR(100) NOT NULL,
     prenom       VARCHAR(100) NOT NULL,
@@ -23,11 +30,11 @@ CREATE TABLE utilisateurs (
     created_at   TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at   TIMESTAMP NOT NULL DEFAULT NOW()
 );
-CREATE INDEX idx_util_email ON utilisateurs(email);
-CREATE INDEX idx_util_role  ON utilisateurs(role);
+CREATE INDEX IF NOT EXISTS idx_util_email ON utilisateurs(email);
+CREATE INDEX IF NOT EXISTS idx_util_role  ON utilisateurs(role);
 
 -- ── Refresh tokens ─────────────────────────────────────────
-CREATE TABLE refresh_tokens (
+CREATE TABLE IF NOT EXISTS refresh_tokens (
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     token           VARCHAR(512) NOT NULL UNIQUE,
     utilisateur_id  UUID NOT NULL REFERENCES utilisateurs(id) ON DELETE CASCADE,
@@ -37,7 +44,7 @@ CREATE TABLE refresh_tokens (
 );
 
 -- ── Étudiants ──────────────────────────────────────────────
-CREATE TABLE etudiants (
+CREATE TABLE IF NOT EXISTS etudiants (
     id                UUID PRIMARY KEY REFERENCES utilisateurs(id) ON DELETE CASCADE,
     numero_etudiant   VARCHAR(50) NOT NULL UNIQUE,
     date_naissance    DATE,
@@ -45,17 +52,17 @@ CREATE TABLE etudiants (
     adresse           TEXT,
     photo_url         VARCHAR(500)
 );
-CREATE INDEX idx_etudiant_num ON etudiants(numero_etudiant);
+CREATE INDEX IF NOT EXISTS idx_etudiant_num ON etudiants(numero_etudiant);
 
 -- ── Enseignants ────────────────────────────────────────────
-CREATE TABLE enseignants (
+CREATE TABLE IF NOT EXISTS enseignants (
     id         UUID PRIMARY KEY REFERENCES utilisateurs(id) ON DELETE CASCADE,
     specialite VARCHAR(200),
     grade      VARCHAR(100)
 );
 
 -- ── Filières ───────────────────────────────────────────────
-CREATE TABLE filieres (
+CREATE TABLE IF NOT EXISTS filieres (
     id      UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     nom     VARCHAR(200) NOT NULL,
     code    VARCHAR(50)  NOT NULL UNIQUE,
@@ -65,24 +72,24 @@ CREATE TABLE filieres (
 );
 
 -- ── Promotions ─────────────────────────────────────────────
-CREATE TABLE promotions (
+CREATE TABLE IF NOT EXISTS promotions (
     id               UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     nom              VARCHAR(200) NOT NULL,
     annee_academique VARCHAR(20)  NOT NULL,
     filiere_id       UUID NOT NULL REFERENCES filieres(id),
     actif            BOOLEAN NOT NULL DEFAULT TRUE
 );
-CREATE INDEX idx_promo_filiere ON promotions(filiere_id);
+CREATE INDEX IF NOT EXISTS idx_promo_filiere ON promotions(filiere_id);
 
 -- ── Inscription étudiant → promotion ──────────────────────
-CREATE TABLE inscriptions_promotions (
+CREATE TABLE IF NOT EXISTS inscriptions_promotions (
     etudiant_id  UUID NOT NULL REFERENCES etudiants(id) ON DELETE CASCADE,
     promotion_id UUID NOT NULL REFERENCES promotions(id) ON DELETE CASCADE,
     PRIMARY KEY (etudiant_id, promotion_id)
 );
 
 -- ── Semestres ──────────────────────────────────────────────
-CREATE TABLE semestres (
+CREATE TABLE IF NOT EXISTS semestres (
     id               UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     numero           INTEGER NOT NULL,
     annee_academique VARCHAR(20) NOT NULL,
@@ -91,10 +98,10 @@ CREATE TABLE semestres (
     statut           statut_semestre NOT NULL DEFAULT 'OUVERT',
     promotion_id     UUID NOT NULL REFERENCES promotions(id)
 );
-CREATE INDEX idx_semestre_promo ON semestres(promotion_id);
+CREATE INDEX IF NOT EXISTS idx_semestre_promo ON semestres(promotion_id);
 
 -- ── Unités d'Enseignement (UE) ────────────────────────────
-CREATE TABLE unites_enseignement (
+CREATE TABLE IF NOT EXISTS unites_enseignement (
     id           UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     code         VARCHAR(50)  NOT NULL,
     intitule     VARCHAR(200) NOT NULL,
@@ -102,10 +109,10 @@ CREATE TABLE unites_enseignement (
     semestre_id  UUID NOT NULL REFERENCES semestres(id) ON DELETE CASCADE,
     UNIQUE (code, semestre_id)
 );
-CREATE INDEX idx_ue_semestre ON unites_enseignement(semestre_id);
+CREATE INDEX IF NOT EXISTS idx_ue_semestre ON unites_enseignement(semestre_id);
 
 -- ── Matières ───────────────────────────────────────────────
-CREATE TABLE matieres (
+CREATE TABLE IF NOT EXISTS matieres (
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     code            VARCHAR(50)  NOT NULL,
     intitule        VARCHAR(200) NOT NULL,
@@ -115,11 +122,11 @@ CREATE TABLE matieres (
     enseignant_id   UUID REFERENCES enseignants(id),
     UNIQUE (code, ue_id)
 );
-CREATE INDEX idx_matiere_ue          ON matieres(ue_id);
-CREATE INDEX idx_matiere_enseignant  ON matieres(enseignant_id);
+CREATE INDEX IF NOT EXISTS idx_matiere_ue          ON matieres(ue_id);
+CREATE INDEX IF NOT EXISTS idx_matiere_enseignant  ON matieres(enseignant_id);
 
 -- ── Notes ──────────────────────────────────────────────────
-CREATE TABLE notes (
+CREATE TABLE IF NOT EXISTS notes (
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     etudiant_id     UUID NOT NULL REFERENCES etudiants(id),
     matiere_id      UUID NOT NULL REFERENCES matieres(id),
@@ -133,11 +140,11 @@ CREATE TABLE notes (
     date_modification TIMESTAMP NOT NULL DEFAULT NOW(),
     UNIQUE (etudiant_id, matiere_id, type_note)
 );
-CREATE INDEX idx_note_etudiant ON notes(etudiant_id);
-CREATE INDEX idx_note_matiere  ON notes(matiere_id);
+CREATE INDEX IF NOT EXISTS idx_note_etudiant ON notes(etudiant_id);
+CREATE INDEX IF NOT EXISTS idx_note_matiere  ON notes(matiere_id);
 
 -- ── Historique des corrections ─────────────────────────────
-CREATE TABLE historique_notes (
+CREATE TABLE IF NOT EXISTS historique_notes (
     id               UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     note_id          UUID NOT NULL REFERENCES notes(id) ON DELETE CASCADE,
     ancienne_valeur  NUMERIC(5,2),
@@ -146,10 +153,10 @@ CREATE TABLE historique_notes (
     modifie_par      UUID NOT NULL REFERENCES utilisateurs(id),
     date_modification TIMESTAMP NOT NULL DEFAULT NOW()
 );
-CREATE INDEX idx_histo_note ON historique_notes(note_id);
+CREATE INDEX IF NOT EXISTS idx_histo_note ON historique_notes(note_id);
 
 -- ── Cache moyennes calculées ───────────────────────────────
-CREATE TABLE moyennes_calculees (
+CREATE TABLE IF NOT EXISTS moyennes_calculees (
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     etudiant_id     UUID NOT NULL REFERENCES etudiants(id),
     semestre_id     UUID NOT NULL REFERENCES semestres(id),
@@ -161,11 +168,11 @@ CREATE TABLE moyennes_calculees (
     date_calcul     TIMESTAMP NOT NULL DEFAULT NOW(),
     UNIQUE (etudiant_id, semestre_id)
 );
-CREATE INDEX idx_moy_etudiant  ON moyennes_calculees(etudiant_id);
-CREATE INDEX idx_moy_semestre  ON moyennes_calculees(semestre_id);
+CREATE INDEX IF NOT EXISTS idx_moy_etudiant  ON moyennes_calculees(etudiant_id);
+CREATE INDEX IF NOT EXISTS idx_moy_semestre  ON moyennes_calculees(semestre_id);
 
 -- ── Relevés de notes ───────────────────────────────────────
-CREATE TABLE releves (
+CREATE TABLE IF NOT EXISTS releves (
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     numero_releve   VARCHAR(100) NOT NULL UNIQUE,
     etudiant_id     UUID NOT NULL REFERENCES etudiants(id),
@@ -174,16 +181,18 @@ CREATE TABLE releves (
     genere_par      UUID REFERENCES utilisateurs(id),
     date_generation TIMESTAMP NOT NULL DEFAULT NOW()
 );
-CREATE INDEX idx_releve_etudiant ON releves(etudiant_id);
+CREATE INDEX IF NOT EXISTS idx_releve_etudiant ON releves(etudiant_id);
 
 -- ── Données initiales ──────────────────────────────────────
 -- Admin par défaut (mot de passe : Admin@2026)
 INSERT INTO utilisateurs (nom, prenom, email, mot_de_passe, role)
 VALUES ('Admin','Système','admin@notes.com',
-        '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewYpR5gzOlCDGmKy','ADMIN');
+        '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewYpR5gzOlCDGmKy','ADMIN')
+ON CONFLICT (email) DO NOTHING;
 
 -- Filière de démo
 INSERT INTO filieres (nom, code, niveau, duree)
 VALUES ('Génie Informatique','GI','LICENCE',3),
        ('Génie Logiciel','GL','LICENCE',3),
-       ('Réseaux et Télécommunications','RT','LICENCE',3);
+       ('Réseaux et Télécommunications','RT','LICENCE',3)
+ON CONFLICT (code) DO NOTHING;

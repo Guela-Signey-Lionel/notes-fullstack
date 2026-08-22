@@ -115,6 +115,10 @@ export function TeacherReportsView() {
               <SelectItem value="all">Tous semestres</SelectItem>
               <SelectItem value="S1">S1</SelectItem>
               <SelectItem value="S2">S2</SelectItem>
+              <SelectItem value="S3">S3</SelectItem>
+              <SelectItem value="S4">S4</SelectItem>
+              <SelectItem value="S5">S5</SelectItem>
+              <SelectItem value="S6">S6</SelectItem>
             </SelectContent>
           </Select>
         }

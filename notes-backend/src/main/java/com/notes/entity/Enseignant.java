@@ -9,6 +9,7 @@ public class Enseignant {
     @Id private UUID id;
     @OneToOne(fetch = FetchType.LAZY) @MapsId @JoinColumn(name = "id")
     private Utilisateur utilisateur;
+    @Column(length = 50) private String numeroEnseignant;
     @Column(length = 200) private String specialite;
     @Column(length = 100) private String grade;
 }

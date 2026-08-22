@@ -2,6 +2,7 @@ package com.notes.dto.request;
 import com.notes.entity.RoleUtilisateur;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import java.util.List;
 import java.util.UUID;
 @Data @NoArgsConstructor @AllArgsConstructor @Builder
 public class CreateUtilisateurRequest {
@@ -12,6 +13,8 @@ public class CreateUtilisateurRequest {
     @NotNull private RoleUtilisateur role;
     private String specialite;
     private String grade;
-    private String numeroEtudiant; // si rôle ETUDIANT
-    private UUID promotionId;      // si rôle ETUDIANT (optionnel)
+    private String numeroEtudiant;   // si rôle ETUDIANT
+    private String numeroEnseignant; // si rôle ENSEIGNANT (matricule)
+    private UUID promotionId;        // si rôle ETUDIANT (optionnel)
+    private List<UUID> matiereIds;   // si rôle ENSEIGNANT (optionnel)
 }

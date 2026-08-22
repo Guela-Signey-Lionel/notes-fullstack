@@ -8,7 +8,7 @@ import { z } from "zod";
 function toTeacherRow(u: BackendUtilisateurResponse, courseCount = 0): TeacherRow {
   return {
     id: u.id,
-    matricule: u.numeroEtudiant || u.id,
+    matricule: u.numeroEnseignant || "",
     name: `${u.prenom} ${u.nom}`.trim(),
     email: u.email,
     department: u.specialite || "—",
@@ -38,29 +38,62 @@ export async function GET() {
 
     const teachers: BackendUtilisateurResponse[] = await res.json();
 
-    // Try to get course counts
+    // Get course counts by fetching all matieres grouped by enseignant
     let courseCountMap = new Map<string, number>();
     try {
-      const semRes = await backendFetch("/semestres?promotionId=" + "placeholder", token!);
-      // Get all matieres to count courses per enseignant
-      const matieresRes = await backendFetch("/matieres?enseignantId=", token!);
-      if (matieresRes.ok) {
-        const matieres = await matieresRes.json();
-        for (const m of matieres) {
-          if (m.enseignantId) {
-            courseCountMap.set(
-              m.enseignantId,
-              (courseCountMap.get(m.enseignantId) || 0) + 1
-            );
+      // Fetch all promotions to get semestres, then UEs, then matieres
+      // Use parallel fetch for performance
+      const promoRes = await backendFetch("/promotions", token!);
+      if (promoRes.ok) {
+        const promotions = await promoRes.json();
+
+        const semestreResults = await Promise.allSettled(
+          promotions.map((promo: any) =>
+            backendFetch(`/semestres?promotionId=${promo.id}`, token!).then(
+              (res) => (res.ok ? res.json() : [])
+            )
+          )
+        );
+
+        const allSemestreIds: string[] = [];
+        semestreResults.forEach((result) => {
+          if (result.status === "fulfilled" && Array.isArray(result.value)) {
+            for (const sem of result.value) {
+              allSemestreIds.push(sem.id);
+            }
+          }
+        });
+
+        const ueResults = await Promise.allSettled(
+          allSemestreIds.map((semId) =>
+            backendFetch(`/ue?semestreId=${semId}`, token!).then(
+              (res) => (res.ok ? res.json() : [])
+            )
+          )
+        );
+
+        // Extract all matieres from UEs
+        for (const result of ueResults) {
+          if (result.status === "fulfilled" && Array.isArray(result.value)) {
+            for (const ue of result.value) {
+              for (const m of ue.matieres || []) {
+                if (m.enseignantId) {
+                  courseCountMap.set(
+                    m.enseignantId,
+                    (courseCountMap.get(m.enseignantId) || 0) + 1
+                  );
+                }
+              }
+            }
           }
         }
       }
     } catch {
-      // Fallback
+      // Fallback: teachers without course counts
     }
 
     const rows: TeacherRow[] = teachers
-      .filter((u) => u.role === "ENSEIGNANT")
+      .filter((u) => u.role === "ENSEIGNANT" && u.actif)
       .map((u) => toTeacherRow(u, courseCountMap.get(u.id) || 0));
 
     return NextResponse.json(rows);
@@ -77,10 +110,11 @@ const createSchema = z.object({
   name: z.string().min(3, "Nom trop court"),
   email: z.string().email("Email invalide"),
   password: z.string().min(6, "Mot de passe ≥ 6 caractères"),
-  matricule: z.string().min(3, "Matricule requis"),
+  matricule: z.string().optional().nullable(),
   department: z.string().min(2, "Département requis"),
   specialty: z.string().optional().nullable(),
   phone: z.string().optional().nullable(),
+  matiereIds: z.array(z.string()).optional().nullable(),
 });
 
 export async function POST(req: Request) {
@@ -119,8 +153,10 @@ export async function POST(req: Request) {
         email: d.email.toLowerCase(),
         motDePasse: d.password,
         role: "ENSEIGNANT",
+        numeroEnseignant: d.matricule || null,
         specialite: d.department,
         grade: d.specialty,
+        matiereIds: d.matiereIds || [],
       }),
     });
 
@@ -142,4 +178,3 @@ export async function POST(req: Request) {
     );
   }
 }
-

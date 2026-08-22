@@ -162,6 +162,7 @@ export async function PATCH(
   if (prenom) updateBody.prenom = prenom;
   if (body.email) updateBody.email = body.email;
   if (body.password && body.password !== "") updateBody.motDePasse = body.password;
+  if (body.matricule) updateBody.numeroEtudiant = body.matricule;
   if (body.phone) updateBody.telephone = body.phone;
   if (body.address) updateBody.adresse = body.address;
 

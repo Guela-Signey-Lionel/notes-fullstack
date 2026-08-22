@@ -49,24 +49,29 @@ export function LoginForm() {
       className="w-full max-w-md"
     >
       <div className="bg-white dark:bg-[#252b3a] rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.15)] border border-[#E0E0E0] dark:border-[#34495E] overflow-hidden w-full">
-        {/* Mobile-only compact header (small logo + title) */}
+        {/* Mobile-only compact header */}
         <div className="sm:hidden bg-[#2C3E50] px-6 py-5 text-white text-center">
-          <div className="mx-auto mb-2 size-10 rounded-full bg-[#1ABC9C] flex items-center justify-center">
+          <div className="mx-auto mb-2 size-10 rounded-xl bg-[#1ABC9C] flex items-center justify-center">
             <ShieldCheck className="size-5" />
           </div>
-          <h1 className="text-lg font-bold tracking-tight">Gestion des Notes</h1>
+          <h1 className="text-lg font-bold tracking-tight">Notes Étudiantes</h1>
           <p className="text-[#ECF0F1] text-xs mt-0.5">
             Université Numérique du Mali
           </p>
         </div>
 
         {/* Desktop header */}
-        <div className="hidden sm:block bg-[#2C3E50] px-8 py-6 text-center">
-          <div className="mx-auto mb-3 size-12 rounded-full bg-[#1ABC9C] flex items-center justify-center shadow-lg">
-            <ShieldCheck className="size-6 text-white" />
+        <div className="hidden sm:block bg-[#2C3E50] px-8 py-7 text-center">
+          <div className="flex items-center justify-center gap-2.5 mb-3">
+            <div className="size-10 rounded-xl bg-[#1ABC9C] flex items-center justify-center shadow-lg shadow-[#1ABC9C]/30">
+              <ShieldCheck className="size-5 text-white" />
+            </div>
+            <div className="text-left">
+              <h1 className="text-lg font-bold text-white tracking-tight leading-tight">Notes Étudiantes</h1>
+              <p className="text-[#ECF0F1]/50 text-[11px]">Université Numérique du Mali</p>
+            </div>
           </div>
-          <h1 className="text-xl font-bold text-white tracking-tight">Gestion des Notes</h1>
-          <p className="text-[#ECF0F1]/80 text-xs mt-1">Système de gestion académique</p>
+          <div className="w-full h-px bg-white/10 mt-4" />
         </div>
 
         {/* Form */}
@@ -141,10 +146,10 @@ export function LoginForm() {
         </form>
 
         {/* Bottom info */}
-        <div className="px-8 py-5 bg-[#F5F7FA] dark:bg-[#1f2330] border-t border-[#E0E0E0] dark:border-[#34495E]">
-          <div className="flex items-center gap-2 justify-center text-xs text-[#7F8C8D] dark:text-[#95a5a6]">
-            <ShieldCheck className="size-3.5 text-[#1ABC9C]" />
-            <span>Connexion sécurisée · Année académique 2025-2026</span>
+        <div className="px-8 py-4 bg-[#F5F7FA] dark:bg-[#1f2330] border-t border-[#E0E0E0] dark:border-[#34495E]">
+          <div className="flex items-center gap-2 justify-center text-[11px] text-[#7F8C8D] dark:text-[#95a5a6]">
+            <ShieldCheck className="size-3 text-[#1ABC9C]" />
+            <span>Connexion sécurisée · Année académique 2025–2026</span>
           </div>
         </div>
       </div>

@@ -1,1 +1,1 @@
-ALTER TABLE utilisateurs ADD COLUMN photo TEXT;
+ALTER TABLE utilisateurs ADD COLUMN IF NOT EXISTS photo TEXT;

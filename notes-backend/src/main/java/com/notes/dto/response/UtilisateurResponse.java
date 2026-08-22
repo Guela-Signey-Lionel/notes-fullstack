@@ -1,6 +1,7 @@
 package com.notes.dto.response;
 import com.notes.entity.RoleUtilisateur;
 import lombok.*;
+import java.util.List;
 import java.util.UUID;
 @Data @NoArgsConstructor @AllArgsConstructor @Builder
 public class UtilisateurResponse {
@@ -13,8 +14,10 @@ public class UtilisateurResponse {
     private String specialite;
     private String grade;
     private String numeroEtudiant;
+    private String numeroEnseignant;
     private String photoUrl;
     private String filiereNom;
     private String promotionNom;
     private String promotionAnnee;
+    private List<String> matiereIds; // IDs des matières assignées (enseignant)
 }

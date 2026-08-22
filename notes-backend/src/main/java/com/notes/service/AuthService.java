@@ -68,7 +68,11 @@ public class AuthService {
             .email(u.getEmail()).role(u.getRole()).actif(u.isActif())
             .photoUrl(u.getPhoto());
         if (u.getRole() == RoleUtilisateur.ENSEIGNANT) {
-            enseignantRepo.findById(u.getId()).ifPresent(e -> { b.specialite(e.getSpecialite()); b.grade(e.getGrade()); });
+            enseignantRepo.findById(u.getId()).ifPresent(e -> {
+                b.specialite(e.getSpecialite());
+                b.grade(e.getGrade());
+                b.numeroEnseignant(e.getNumeroEnseignant());
+            });
         }
         if (u.getRole() == RoleUtilisateur.ETUDIANT) {
             etudiantRepo.findById(u.getId()).ifPresent(e -> {

@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -26,6 +27,7 @@ public class UtilisateurService {
     private final PasswordEncoder passwordEncoder;
     private final AuthService authService;
     private final PromotionRepository promotionRepo;
+    private final MatiereRepository matiereRepo;
 
     @Transactional(readOnly = true)
     public List<UtilisateurResponse> findByRole(RoleUtilisateur role) {
@@ -69,8 +71,13 @@ public class UtilisateurService {
                 etudiantRepo.save(etu);
             }
         } else if (req.getRole() == RoleUtilisateur.ENSEIGNANT) {
-            enseignantRepo.save(Enseignant.builder().utilisateur(u)
+            Enseignant ens = enseignantRepo.save(Enseignant.builder().utilisateur(u)
+                .numeroEnseignant(req.getNumeroEnseignant())
                 .specialite(req.getSpecialite()).grade(req.getGrade()).build());
+            // Assigner les matières si spécifiées
+            if (req.getMatiereIds() != null && !req.getMatiereIds().isEmpty()) {
+                assignerMatieres(ens, req.getMatiereIds());
+            }
         }
         return authService.mapUser(u);
     }
@@ -124,7 +131,21 @@ public class UtilisateurService {
             if (ens != null) {
                 if (req.getSpecialite() != null) ens.setSpecialite(req.getSpecialite());
                 if (req.getGrade() != null) ens.setGrade(req.getGrade());
+                if (req.getNumeroEnseignant() != null) ens.setNumeroEnseignant(req.getNumeroEnseignant());
                 enseignantRepo.save(ens);
+                // Réassigner les matières si spécifiées
+                if (req.getMatiereIds() != null) {
+                    // Détacher les anciennes matières
+                    List<Matiere> oldMatieres = matiereRepo.findByEnseignantId(ens.getId());
+                    for (Matiere old : oldMatieres) {
+                        old.setEnseignant(null);
+                        matiereRepo.save(old);
+                    }
+                    // Assigner les nouvelles
+                    if (!req.getMatiereIds().isEmpty()) {
+                        assignerMatieres(ens, req.getMatiereIds());
+                    }
+                }
             }
         }
 
@@ -133,6 +154,24 @@ public class UtilisateurService {
 
     public UtilisateurResponse updateProfileByAdmin(UUID userId, UpdateUtilisateurRequest req) {
         return updateProfile(userId, req);
+    }
+
+    /**
+     * Assigner des matières à un enseignant.
+     */
+    public void assignerMatieresEnseignant(UUID enseignantId, List<UUID> matiereIds) {
+        Enseignant ens = enseignantRepo.findById(enseignantId)
+            .orElseThrow(() -> NotesException.notFound("Enseignant"));
+        assignerMatieres(ens, matiereIds);
+    }
+
+    private void assignerMatieres(Enseignant ens, List<UUID> matiereIds) {
+        for (UUID matiereId : matiereIds) {
+            Matiere m = matiereRepo.findById(matiereId)
+                .orElseThrow(() -> NotesException.notFound("Matière: " + matiereId));
+            m.setEnseignant(ens);
+            matiereRepo.save(m);
+        }
     }
 
     public void importerEtudiantsCSV(org.springframework.web.multipart.MultipartFile file, UUID promotionId) {

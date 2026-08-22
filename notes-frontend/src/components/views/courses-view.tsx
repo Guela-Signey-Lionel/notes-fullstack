@@ -55,10 +55,13 @@ import {
   useDeleteCourse,
 } from "@/hooks/use-api";
 import { useUIStore } from "@/store/ui-store";
+import { useAuthStore } from "@/store/auth-store";
 import { PageHeader, EmptyState, Badge } from "@/components/common/ui-bits";
 import { toast } from "sonner";
 
 export function CoursesView() {
+  const user = useAuthStore((s) => s.user);
+  const isAdmin = user?.role === "ADMIN";
   const { data, isLoading } = useCourses();
   const { data: promos } = usePromotions();
   const { data: teachers } = useTeachers();
@@ -93,6 +96,7 @@ export function CoursesView() {
         title="Matières"
         subtitle={`${filtered.length} matière(s)`}
         actions={
+          isAdmin ? (
           <Button
             onClick={() => {
               setEditing(null);
@@ -102,6 +106,7 @@ export function CoursesView() {
           >
             <Plus className="size-4" /> Ajouter
           </Button>
+          ) : undefined
         }
       />
       {/* Filters bar */}
@@ -121,6 +126,10 @@ export function CoursesView() {
             <SelectItem value="all">Tous les semestres</SelectItem>
             <SelectItem value="S1">S1</SelectItem>
             <SelectItem value="S2">S2</SelectItem>
+            <SelectItem value="S3">S3</SelectItem>
+            <SelectItem value="S4">S4</SelectItem>
+            <SelectItem value="S5">S5</SelectItem>
+            <SelectItem value="S6">S6</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -174,7 +183,7 @@ export function CoursesView() {
                     {c.credits}
                   </TableCell>
                   <TableCell className="text-center">
-                    <Badge variant={c.semester === "S1" ? "teal" : "orange"}>
+                    <Badge variant={c.semester === "S1" || c.semester === "S3" || c.semester === "S5" ? "teal" : "orange"}>
                       {c.semester}
                     </Badge>
                   </TableCell>
@@ -185,6 +194,7 @@ export function CoursesView() {
                     {c.promotionName}
                   </TableCell>
                   <TableCell className="text-right">
+                    {isAdmin && (
                     <div className="flex items-center justify-end gap-1">
                       <button
                         onClick={() => {
@@ -202,6 +212,7 @@ export function CoursesView() {
                         <Trash2 className="size-4" />
                       </button>
                     </div>
+                    )}
                   </TableCell>
                 </motion.tr>
               ))
@@ -375,6 +386,10 @@ function CourseForm({
                 <SelectContent>
                   <SelectItem value="S1">S1</SelectItem>
                   <SelectItem value="S2">S2</SelectItem>
+                  <SelectItem value="S3">S3</SelectItem>
+                  <SelectItem value="S4">S4</SelectItem>
+                  <SelectItem value="S5">S5</SelectItem>
+                  <SelectItem value="S6">S6</SelectItem>
                 </SelectContent>
               </Select>
             </div>

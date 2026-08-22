@@ -55,33 +55,46 @@ export async function GET() {
     const pageData = await res.json();
     const students: BackendUtilisateurResponse[] = pageData.content || pageData;
 
-    // Try to get averages from promotions/classement
+    // Get averages in parallel across all promotions
     const avgMap = new Map<string, { average: number | null; gradeCount: number }>();
 
     try {
-      // Get promotions to find semestres
       const promoRes = await backendFetch("/promotions", token!);
       if (promoRes.ok) {
         const promotions = await promoRes.json();
-        for (const promo of promotions) {
-          try {
-            const semRes = await backendFetch(
-              `/semestres?promotionId=${promo.id}`,
-              token!
-            );
-            if (!semRes.ok) continue;
-            const semestres = await semRes.json();
-            // Use the last semestre for averages
-            const lastSem = semestres[semestres.length - 1];
-            if (!lastSem) continue;
 
-            const classRes = await backendFetch(
-              `/moyennes/classement/promotion/${promo.id}/semestre/${lastSem.id}`,
+        // Fetch all semestres in parallel
+        const semestreResults = await Promise.allSettled(
+          promotions.map((promo: any) =>
+            backendFetch(`/semestres?promotionId=${promo.id}`, token!).then(
+              (res) => res.ok ? res.json() : []
+            )
+          )
+        );
+
+        // Build list of {promoId, lastSemestre} pairs
+        const semestrePairs: Array<{ promoId: string; semId: string }> = [];
+        semestreResults.forEach((result, i) => {
+          if (result.status === "fulfilled" && Array.isArray(result.value) && result.value.length > 0) {
+            const semestres = result.value;
+            const lastSem = semestres[semestres.length - 1];
+            semestrePairs.push({ promoId: promotions[i].id, semId: lastSem.id });
+          }
+        });
+
+        // Fetch all classements in parallel
+        const classementResults = await Promise.allSettled(
+          semestrePairs.map(({ promoId, semId }) =>
+            backendFetch(
+              `/moyennes/classement/promotion/${promoId}/semestre/${semId}`,
               token!
-            );
-            if (!classRes.ok) continue;
-            const classement = await classRes.json();
-            for (const m of classement.classement || []) {
+            ).then((res) => (res.ok ? res.json() : null))
+          )
+        );
+
+        for (const result of classementResults) {
+          if (result.status === "fulfilled" && result.value) {
+            for (const m of result.value.classement || []) {
               avgMap.set(m.etudiantId, {
                 average: m.moyenne != null ? Number(m.moyenne) : null,
                 gradeCount: m.moyennesUE
@@ -93,8 +106,6 @@ export async function GET() {
                   : 0,
               });
             }
-          } catch {
-            continue;
           }
         }
       }
@@ -103,7 +114,7 @@ export async function GET() {
     }
 
     const rows: StudentWithStats[] = students
-      .filter((u) => u.role === "ETUDIANT")
+      .filter((u) => u.role === "ETUDIANT" && u.actif)
       .map((u) => toStudentWithStats(u, avgMap.get(u.id) ?? null));
 
     return NextResponse.json(rows);
@@ -156,6 +167,7 @@ export async function POST(req: Request) {
   const nom = parts.length > 1 ? parts.slice(-1).join(" ") : parts[0];
 
   try {
+    // 1. Create the user with promotionId
     const res = await backendFetch("/utilisateurs", token!, {
       method: "POST",
       body: JSON.stringify({
@@ -165,6 +177,7 @@ export async function POST(req: Request) {
         motDePasse: d.password,
         role: "ETUDIANT",
         numeroEtudiant: d.matricule,
+        promotionId: d.promotionId || undefined,
       }),
     });
 
@@ -177,6 +190,20 @@ export async function POST(req: Request) {
     }
 
     const created: BackendUtilisateurResponse = await res.json();
+
+    // 2. Enroll the student in the promotion
+    if (d.promotionId) {
+      try {
+        await backendFetch(
+          `/promotions/${d.promotionId}/etudiants/${created.id}`,
+          token!,
+          { method: "POST" }
+        );
+      } catch {
+        // Best effort — student created but not enrolled
+      }
+    }
+
     return NextResponse.json(toStudentWithStats(created), { status: 201 });
   } catch (err: any) {
     console.error("Create student error:", err?.message || err);
@@ -186,4 +213,3 @@ export async function POST(req: Request) {
     );
   }
 }
-

@@ -15,13 +15,20 @@ import type {
 } from "@/lib/types";
 
 // ---------------------------------------------------------------------------
+// Helper: same-origin fetch that always sends cookies
+// ---------------------------------------------------------------------------
+function apiFetch(url: string, init?: RequestInit): Promise<Response> {
+  return fetch(url, { credentials: "same-origin", ...init });
+}
+
+// ---------------------------------------------------------------------------
 // Auth
 // ---------------------------------------------------------------------------
 export function useMe() {
   return useQuery({
     queryKey: ["me"],
     queryFn: async () => {
-      const res = await fetch("/api/auth/me", { cache: "no-store" });
+      const res = await apiFetch("/api/auth/me", { cache: "no-store" });
       const data = await res.json();
       return data.user;
     },
@@ -37,7 +44,7 @@ export function useStats() {
     queryKey: ["stats"],
     enabled: !!user,
     queryFn: async () => {
-      const res = await fetch("/api/stats", { cache: "no-store" });
+      const res = await apiFetch("/api/stats", { cache: "no-store" });
       if (!res.ok) throw new Error("Erreur stats");
       return res.json();
     },
@@ -48,7 +55,7 @@ export function useTeacherStats() {
   return useQuery<TeacherStats>({
     queryKey: ["stats", "teacher"],
     queryFn: async () => {
-      const res = await fetch("/api/stats/teacher", { cache: "no-store" });
+      const res = await apiFetch("/api/stats/teacher", { cache: "no-store" });
       if (!res.ok) throw new Error("Erreur stats enseignant");
       return res.json();
     },
@@ -64,7 +71,7 @@ export function useStudents() {
     queryKey: ["students"],
     enabled: !!user,
     queryFn: async () => {
-      const res = await fetch("/api/students", { cache: "no-store" });
+      const res = await apiFetch("/api/students", { cache: "no-store" });
       if (!res.ok) throw new Error("Erreur étudiants");
       return res.json();
     },
@@ -76,7 +83,7 @@ export function useStudent(id: string | null | undefined) {
     queryKey: ["student", id],
     enabled: !!id,
     queryFn: async () => {
-      const res = await fetch(`/api/students/${id}`, { cache: "no-store" });
+      const res = await apiFetch(`/api/students/${id}`, { cache: "no-store" });
       if (!res.ok) throw new Error("Erreur étudiant");
       return res.json();
     },
@@ -87,7 +94,7 @@ export function useCreateStudent() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (input: any) => {
-      const res = await fetch("/api/students", {
+      const res = await apiFetch("/api/students", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(input),
@@ -99,6 +106,7 @@ export function useCreateStudent() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["students"] });
       qc.invalidateQueries({ queryKey: ["stats"] });
+      qc.invalidateQueries({ queryKey: ["promotions"] });
       toast.success("Étudiant créé avec succès");
     },
     onError: (e: any) => toast.error(e.message || "Erreur"),
@@ -109,7 +117,7 @@ export function useUpdateStudent() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, ...input }: any) => {
-      const res = await fetch(`/api/students/${id}`, {
+      const res = await apiFetch(`/api/students/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(input),
@@ -131,7 +139,7 @@ export function useDeleteStudent() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const res = await fetch(`/api/students/${id}`, { method: "DELETE" });
+      const res = await apiFetch(`/api/students/${id}`, { method: "DELETE" });
       if (!res.ok) {
         const d = await res.json();
         throw new Error(d.error || "Erreur");
@@ -155,7 +163,7 @@ export function useTeachers() {
     queryKey: ["teachers"],
     enabled: !!user,
     queryFn: async () => {
-      const res = await fetch("/api/teachers", { cache: "no-store" });
+      const res = await apiFetch("/api/teachers", { cache: "no-store" });
       if (!res.ok) throw new Error("Erreur enseignants");
       return res.json();
     },
@@ -166,7 +174,7 @@ export function useCreateTeacher() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (input: any) => {
-      const res = await fetch("/api/teachers", {
+      const res = await apiFetch("/api/teachers", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(input),
@@ -187,7 +195,7 @@ export function useUpdateTeacher() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, ...input }: any) => {
-      const res = await fetch(`/api/teachers/${id}`, {
+      const res = await apiFetch(`/api/teachers/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(input),
@@ -208,7 +216,7 @@ export function useDeleteTeacher() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const res = await fetch(`/api/teachers/${id}`, { method: "DELETE" });
+      const res = await apiFetch(`/api/teachers/${id}`, { method: "DELETE" });
       if (!res.ok) {
         const d = await res.json();
         throw new Error(d.error || "Erreur");
@@ -237,7 +245,7 @@ export function useCourses(filters?: {
       const params = new URLSearchParams();
       if (filters?.promotionId) params.set("promotionId", filters.promotionId);
       if (filters?.semester) params.set("semester", filters.semester);
-      const res = await fetch(`/api/courses?${params.toString()}`, {
+      const res = await apiFetch(`/api/courses?${params.toString()}`, {
         cache: "no-store",
       });
       if (!res.ok) throw new Error("Erreur matières");
@@ -250,7 +258,7 @@ export function useCreateCourse() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (input: any) => {
-      const res = await fetch("/api/courses", {
+      const res = await apiFetch("/api/courses", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(input),
@@ -271,7 +279,7 @@ export function useUpdateCourse() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, ...input }: any) => {
-      const res = await fetch(`/api/courses/${id}`, {
+      const res = await apiFetch(`/api/courses/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(input),
@@ -292,7 +300,7 @@ export function useDeleteCourse() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const res = await fetch(`/api/courses/${id}`, { method: "DELETE" });
+      const res = await apiFetch(`/api/courses/${id}`, { method: "DELETE" });
       if (!res.ok) {
         const d = await res.json();
         throw new Error(d.error || "Erreur");
@@ -315,7 +323,7 @@ export function usePromotions() {
     queryKey: ["promotions"],
     enabled: !!user,
     queryFn: async () => {
-      const res = await fetch("/api/promotions", { cache: "no-store" });
+      const res = await apiFetch("/api/promotions", { cache: "no-store" });
       if (!res.ok) throw new Error("Erreur promotions");
       return res.json();
     },
@@ -326,7 +334,7 @@ export function useCreatePromotion() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (input: any) => {
-      const res = await fetch("/api/promotions", {
+      const res = await apiFetch("/api/promotions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(input),
@@ -347,7 +355,7 @@ export function useUpdatePromotion() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, ...input }: any) => {
-      const res = await fetch(`/api/promotions/${id}`, {
+      const res = await apiFetch(`/api/promotions/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(input),
@@ -368,7 +376,7 @@ export function useDeletePromotion() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const res = await fetch(`/api/promotions/${id}`, { method: "DELETE" });
+      const res = await apiFetch(`/api/promotions/${id}`, { method: "DELETE" });
       if (!res.ok) {
         const d = await res.json();
         throw new Error(d.error || "Erreur");
@@ -400,8 +408,9 @@ export function useGrades(filters: {
       if (filters.studentId) params.set("studentId", filters.studentId);
       if (filters.courseId) params.set("courseId", filters.courseId);
       if (filters.semester) params.set("semester", filters.semester);
-      if (filters.academicYear) params.set("academicYear", filters.academicYear);
-      const res = await fetch(`/api/grades?${params.toString()}`, {
+      if (filters.academicYear)
+        params.set("academicYear", filters.academicYear);
+      const res = await apiFetch(`/api/grades?${params.toString()}`, {
         cache: "no-store",
       });
       if (!res.ok) throw new Error("Erreur notes");
@@ -414,7 +423,7 @@ export function useBulkSaveGrades() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (items: any[]) => {
-      const res = await fetch("/api/grades/bulk", {
+      const res = await apiFetch("/api/grades/bulk", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ items }),
@@ -439,7 +448,7 @@ export function useStudentTranscript(studentId: string | null | undefined) {
     queryKey: ["student-transcript", studentId],
     enabled: !!studentId,
     queryFn: async () => {
-      const res = await fetch(`/api/grades/student/${studentId}`, {
+      const res = await apiFetch(`/api/grades/student/${studentId}`, {
         cache: "no-store",
       });
       if (!res.ok) throw new Error("Erreur notes étudiant");
@@ -452,7 +461,7 @@ export function useDeleteGrade() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const res = await fetch(`/api/grades/${id}`, { method: "DELETE" });
+      const res = await apiFetch(`/api/grades/${id}`, { method: "DELETE" });
       if (!res.ok) {
         const d = await res.json();
         throw new Error(d.error || "Erreur");
@@ -468,4 +477,3 @@ export function useDeleteGrade() {
     onError: (e: any) => toast.error(e.message || "Erreur"),
   });
 }
-

@@ -83,6 +83,16 @@ public class UtilisateurController {
         return ResponseEntity.ok(service.uploadPhoto(user.getId(), body.get("photo")));
     }
 
+    @PostMapping("/{id}/matieres")
+    @Operation(summary="Assigner des matières à un enseignant", description="Assigne la ou les matières spécifiées à l'enseignant dont l'ID est fourni. Les anciennes matières sont remplacées.")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> assignerMatieres(
+        @PathVariable UUID id,
+        @RequestBody List<UUID> matiereIds) {
+        service.assignerMatieresEnseignant(id, matiereIds);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/etudiants/import-csv")
     @Operation(summary="Importer des étudiants en masse via CSV", description="Importe plusieurs étudiants à partir d'un fichier CSV et les inscrit automatiquement à la promotion spécifiée. Le fichier doit contenir les colonnes : nom, prénom, email. Réservé aux administrateurs.")
     @PreAuthorize("hasRole('ADMIN')")

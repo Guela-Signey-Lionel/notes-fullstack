@@ -81,12 +81,14 @@ export interface BackendUtilisateurResponse {
   specialite?: string;
   grade?: string;
   numeroEtudiant?: string;
+  numeroEnseignant?: string;
   photoUrl?: string;
   filiereNom?: string;
   promotionNom?: string;
   promotionAnnee?: string;
   telephone?: string;
   adresse?: string;
+  matiereIds?: string[];
 }
 
 export interface BackendAuthResponse {

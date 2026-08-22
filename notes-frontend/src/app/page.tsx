@@ -35,13 +35,16 @@ function LeftHeroPanel() {
   ];
   return (
     <div
-      className="relative hidden lg:block overflow-hidden bg-cover bg-center"
+      className="relative hidden lg:flex overflow-hidden bg-cover bg-center bg-[#2C3E50]"
       style={{ backgroundImage: "url('/campus.jpg')" }}
       role="img"
       aria-label="Campus universitaire"
     >
-      {/* Overlay gradient for readability */}
-      <div className="absolute inset-0 bg-linear-to-br from-[#2C3E50]/95 via-[#2C3E50]/85 to-[#16A085]/75" />
+      {/* Overlay gradient */}
+      <div className="absolute inset-0 bg-linear-to-br from-[#1a252f]/97 via-[#2C3E50]/90 to-[#16A085]/80" />
+      {/* Decorative elements */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-[#1ABC9C]/10 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl" />
+      <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#1ABC9C]/8 rounded-full translate-y-1/3 -translate-x-1/4 blur-3xl" />
       {/* Content */}
       <div className="relative z-10 h-full flex flex-col justify-center p-12 xl:p-16 text-white">
         <motion.div
@@ -50,42 +53,58 @@ function LeftHeroPanel() {
           transition={{ duration: 0.6 }}
           className="max-w-md"
         >
-          <div className="mx-auto mb-6 size-14 rounded-full bg-[#1ABC9C] flex items-center justify-center shadow-lg">
-            <GraduationCap className="size-7 text-white" />
+          {/* Logo & university name */}
+          <div className="flex items-center gap-3 mb-8">
+            <div className="size-12 rounded-xl bg-[#1ABC9C] flex items-center justify-center shadow-lg shadow-[#1ABC9C]/30">
+              <GraduationCap className="size-6 text-white" />
+            </div>
+            <div>
+              <p className="text-[#1ABC9C] text-xs font-semibold tracking-widest uppercase">
+                Université Numérique
+              </p>
+              <p className="text-white/50 text-[11px] tracking-wide">du Mali</p>
+            </div>
           </div>
-          <h1 className="text-3xl xl:text-4xl font-bold tracking-tight leading-tight">
-            Gestion des Notes Étudiantes
-          </h1>
-          <p className="text-[#ECF0F1] text-base xl:text-lg mt-3 opacity-90">
-            Plateforme académique · Gestion de Notes pour Université
-          </p>
-          <div className="w-16 h-1 bg-[#1ABC9C] rounded-full mt-6" />
 
-          <ul className="mt-8 space-y-3.5">
+          <h1 className="text-3xl xl:text-4xl font-bold tracking-tight leading-tight">
+            Gestion des Notes
+            <br />
+            <span className="text-[#1ABC9C]">Étudiantes</span>
+          </h1>
+          <p className="text-[#ECF0F1]/70 text-sm xl:text-base mt-4 leading-relaxed">
+            Plateforme académique de gestion des notes pour l&apos;enseignement supérieur.
+          </p>
+          <div className="w-12 h-0.5 bg-[#1ABC9C] rounded-full mt-6" />
+
+          <ul className="mt-8 space-y-4">
             {features.map((f, i) => (
               <motion.li
                 key={f.label}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.15 + i * 0.08 }}
+                transition={{ delay: 0.2 + i * 0.1 }}
                 className="flex items-center gap-3"
               >
-                <div className="size-8 rounded-full bg-white/15 flex items-center justify-center shrink-0">
-                  <f.icon className="size-4 text-white" />
+                <div className="size-9 rounded-lg bg-white/10 border border-white/10 flex items-center justify-center shrink-0 backdrop-blur-sm">
+                  <f.icon className="size-4 text-[#1ABC9C]" />
                 </div>
-                <span className="text-sm xl:text-base text-white/95">
+                <span className="text-sm xl:text-[15px] text-white/80">
                   {f.label}
                 </span>
               </motion.li>
             ))}
           </ul>
 
-          <div className="mt-10 flex items-center gap-3">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-medium">
-              <ShieldCheck className="size-3.5 text-[#1ABC9C]" />
-              Année académique 2025-2026
-            </span>
-            <span className="text-xs text-white/70">v1.0 · Spécialisation</span>
+          <div className="mt-12 pt-6 border-t border-white/10">
+            <div className="flex items-center gap-2 mb-2">
+              <ShieldCheck className="size-4 text-[#1ABC9C]" />
+              <span className="text-xs font-semibold text-white/90 uppercase tracking-wider">
+                Année académique 2025–2026
+              </span>
+            </div>
+            <p className="text-[11px] text-white/40 pl-6">
+              Génie Logiciel · Sécurité Réseaux · Admin Réseaux · Réseaux & Télécom · Info de Gestion
+            </p>
           </div>
         </motion.div>
       </div>
